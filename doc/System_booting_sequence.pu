@@ -5,7 +5,8 @@ participant main
 activate main
 
 create participant System
-main -> System: System()
+main -> System: import System
+
 main -> System: register_component(component, constructor)
 note right: register components continuously
 main -> System: startup_components()

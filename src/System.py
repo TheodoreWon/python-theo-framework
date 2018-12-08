@@ -2,8 +2,6 @@ import threading
 import queue
 import cmd
 
-from .DictList import DictList
-
 
 class System:
     """
@@ -37,6 +35,7 @@ class System:
     is_admin_prompt_started = False
 
     def __init__(self):
+        from .DictList import DictList
         if self.interface_dictlist is None:
             self.interface_dictlist = DictList()
 
@@ -72,7 +71,7 @@ class System:
         componets = []
         for component in self.component_dictlist.get_data():
             componets.append(component['name'])
-            component['handler'] = component['constructor'](self, component['name'])
+            component['handler'] = component['constructor'](component['name'])
 
         for component in self.component_dictlist.get_data():
             component['handler'].check_connected(componets)
@@ -105,6 +104,9 @@ class System:
                 else:
                     # print('[System] invalid command({})'.format(messages))
                     prompt_queue.put(None)
+
+
+system = System()
 
 
 class Prompt(cmd.Cmd):
@@ -151,6 +153,8 @@ class Prompt(cmd.Cmd):
         self.system_queue.put(inputs)
 
         result = self.prompt_queue.get()
+
+        from .DictList import DictList
         if isinstance(result, DictList):
             print('[Prompt] Result : below dictlist')
             result.print()

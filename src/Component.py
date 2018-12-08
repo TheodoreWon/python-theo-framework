@@ -1,8 +1,5 @@
 import abc
 
-from .System import System
-from .Log import Log
-
 
 class Component(metaclass=abc.ABCMeta):
     """
@@ -13,18 +10,16 @@ class Component(metaclass=abc.ABCMeta):
     At the last of this file, there is the form for initial component.
     """
 
-    def __init__(self, system, name):
-        if not isinstance(system, System):
-            raise AssertionError('system(type:{}) should be System.'.format(type(system)))
-
+    def __init__(self, name):
         if not isinstance(name, str):
             raise AssertionError('name(type:{}) should be str.'.format(type(name)))
 
-        self.system = system
         self.name = name
 
-        self.related_components = []
+        from .Log import Log
         self.log = Log(self.name)
+
+        self.related_components = []
         self.set_related_components()
 
     @abc.abstractmethod
@@ -43,7 +38,8 @@ class Component(metaclass=abc.ABCMeta):
 
 
 '''
-from library.src.Component import Component
+from theoLibrary.src.Component import Component
+from theoLibrary.src.System import system
 
 
 class --component--(Component):
@@ -54,5 +50,5 @@ class --component--(Component):
     def initial(self):
         self.log.print('info', 'initial (related:{})'.format(self.related_components))
 
-        # self.system.register_interface(self.name, 'interface', [0], None)
+        # system.register_interface(self.name, 'interface', [0], None)
 '''

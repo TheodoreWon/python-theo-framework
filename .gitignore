@@ -1,1 +1,6 @@
+# python temporary folder
 __pycache__
+
+# theoLibrary creation folder
+configs/
+files/

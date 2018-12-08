@@ -14,10 +14,10 @@ I am likely waiting a any kind of contribution.
 
 This is the only library to be used by any kind of project.
 You can clone this in your project and import files.
-I would like to recommend to store libraries in same folder like lib or library or theoLibrary.
+I would like to recommend to store theoLibrary in your project folder.
 
 Source code have documentation to explain what is, how to use.
-And also several examples are located in ex folder.
+And also examples are located in root folder, theoLibrary.py.
 I draw diagrams to let you understand the library too.
 Please check doc folder.
 

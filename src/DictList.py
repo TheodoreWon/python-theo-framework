@@ -3,6 +3,7 @@ import random
 import collections
 import os
 import json
+import csv
 
 
 class DictList:
@@ -37,10 +38,10 @@ class DictList:
 
         import_json(file)
         export_json(file)
-        TODO: import_csv(file)
-        TODO: export_csv(file)
-        TODO: import_mongodb(database, collection)
-        TODO: export_mongodb(database, collection)
+        import_csv(file)
+        export_csv(file)
+        import_mongodb(database, collection)
+        export_mongodb(database, collection)
 
         TODO: walker_handler = plug_in_walker(walker, walker_delay=False, insert=False)
         TODO: plug_out_walker(walker_handler)
@@ -127,8 +128,7 @@ class DictList:
             data = list()
             for datum in self.data:
                 for filter in filters:
-                    if not (filter['key'] in datum.keys()
-                            and datum[filter['key']] == filter['value']):
+                    if not (filter['key'] in datum.keys() and datum[filter['key']] == filter['value']):
                         break
                 else:
                     data.append(datum)
@@ -206,6 +206,8 @@ class DictList:
             self.extend_data(json.load(file_handler))
             file_handler.close()
 
+            self.sorted = False
+
     def export_json(self, file):
         self.validation_file(file)
         self.sort_data()
@@ -216,6 +218,65 @@ class DictList:
         file_handler = open(file, 'w')
         json.dump(self.data, file_handler, ensure_ascii=False, indent="\t")
         file_handler.close()
+
+    def import_csv(self, file):
+        self.validation_file(file)
+
+        if os.path.exists(file):
+            file_handler = open(file, 'r', encoding='utf-8-sig')
+            csv_reader = csv.reader(file_handler)
+            keys = list()
+            for index, values in enumerate(csv_reader):
+                if index == 0:
+                    for value in values:
+                        keys.append(value)
+                else:
+                    datum = dict()
+                    for key_index, key in enumerate(keys):
+                        datum[key] = values[key_index]
+
+                    self.append(datum)
+
+            file_handler.close()
+
+            self.sorted = False
+
+    def export_csv(self, file):
+        self.validation_file(file)
+        self.sort_data()
+
+        if not os.path.exists(os.path.dirname(os.path.abspath(file))):
+            os.makedirs(os.path.dirname(os.path.abspath(file)))
+
+        if len(self.data) != 0:
+            file_handler = open(file, 'w', encoding='utf-8-sig', newline='\n')
+            keys = list(self.data[0].keys())
+            csv_writer = csv.writer(file_handler)
+            csv_writer.writerow(keys)
+            for datum in self.data:
+                values = list()
+                for key in keys:
+                    values.append(str(datum.get(key)))
+
+                csv_writer.writerow(values)
+
+            file_handler.close()
+
+    def import_mongodb(self, database, collection):
+        self.validation_mongodb(database, collection)
+
+        from .System import system
+        data = system.execute_interface('MongoDBCtrl', 'load_data', database, collection)
+        if len(data):
+            self.data.extend(data)
+            self.sorted = False
+
+    def export_mongodb(self, database, collection):
+        self.validation_mongodb(database, collection)
+        self.sort_data()
+
+        from .System import system
+        system.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
 
     """
     Internal sorting, searching functions
@@ -372,3 +433,11 @@ class DictList:
     def validation_file(file):
         if not isinstance(file, str):
             raise AssertionError('file(type:{}) should be str.'.format(type(file)))
+
+    @staticmethod
+    def validation_mongodb(database, collection):
+        if not isinstance(database, str):
+            raise AssertionError('database(type:{}) should be str.'.format(type(database)))
+
+        if not isinstance(collection, str):
+            raise AssertionError('collection(type:{}) should be str.'.format(type(collection)))
