@@ -1,5 +1,7 @@
 import abc
 
+from .Validation import Validation
+
 
 class Component(metaclass=abc.ABCMeta):
     """
@@ -11,8 +13,7 @@ class Component(metaclass=abc.ABCMeta):
     """
 
     def __init__(self, name):
-        if not isinstance(name, str):
-            raise AssertionError('name(type:{}) should be str.'.format(type(name)))
+        Validation.validation_name(name)
 
         self.name = name
 

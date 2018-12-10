@@ -5,6 +5,8 @@ import os
 import json
 import csv
 
+from .Validation import Validation
+
 
 class DictList:
     """
@@ -81,7 +83,7 @@ class DictList:
     def get_datum(self, attr1, attr2=None):
         # get_datum(filters)
         if attr2 is None and isinstance(attr1, list):
-            self.validation_filters(attr1)
+            Validation.validation_filters(attr1)
 
             filters = attr1
             for datum in self.data:
@@ -119,7 +121,7 @@ class DictList:
                 return None
 
     def get_data(self, filters=None):
-        self.validation_filters(filters)
+        Validation.validation_filters(filters)
 
         if filters is None:
             return copy.copy(self.data)
@@ -128,11 +130,7 @@ class DictList:
             data = list()
             for datum in self.data:
                 for filter in filters:
-<<<<<<< HEAD
-                    if not (filter['key'] in datum.keys() and datum[filter['key']] == filter['value']):
-=======
                     if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
->>>>>>> develop
                         break
                 else:
                     data.append(datum)
@@ -140,7 +138,7 @@ class DictList:
             return data
 
     def get_values(self, key, overlap=False, filters=None):
-        self.validation_filters(filters)
+        Validation.validation_filters(filters)
 
         if filters is None:
             filters = list()
@@ -162,26 +160,26 @@ class DictList:
             return list(collections.OrderedDict.fromkeys(values))
 
     def append(self, datum):
-        self.validation_datum(datum)
+        Validation.validation_datum(self.key, datum)
 
         self.data.append(datum)
         self.sorted = False
 
     def insert(self, datum):
-        self.validation_datum(datum)
+        Validation.validation_datum(self.key, datum)
 
         self.data.insert(0, datum)
         self.sorted = False
 
     def extend(self, dictlist):
-        self.validation_dictlist(dictlist)
+        Validation.validation_dictlist(self.key, dictlist)
 
         if len(dictlist.count()):
             self.data.extend(dictlist.get_data())
             self.sorted = False
 
     def extend_data(self, data):
-        self.validation_data(data)
+        Validation.validation_data(self.key, data)
 
         if len(data):
             self.data.extend(data)
@@ -203,7 +201,7 @@ class DictList:
         self.sorted = True
 
     def import_json(self, file):
-        self.validation_file(file)
+        Validation.validation_file(file)
 
         if os.path.exists(file):
             file_handler = open(file, 'r')
@@ -213,7 +211,7 @@ class DictList:
             self.sorted = False
 
     def export_json(self, file):
-        self.validation_file(file)
+        Validation.validation_file(file)
         self.sort_data()
 
         if not os.path.exists(os.path.dirname(os.path.abspath(file))):
@@ -224,7 +222,7 @@ class DictList:
         file_handler.close()
 
     def import_csv(self, file):
-        self.validation_file(file)
+        Validation.validation_file(file)
 
         if os.path.exists(file):
             file_handler = open(file, 'r', encoding='utf-8-sig')
@@ -246,7 +244,7 @@ class DictList:
             self.sorted = False
 
     def export_csv(self, file):
-        self.validation_file(file)
+        Validation.validation_file(file)
         self.sort_data()
 
         if not os.path.exists(os.path.dirname(os.path.abspath(file))):
@@ -267,7 +265,7 @@ class DictList:
             file_handler.close()
 
     def import_mongodb(self, database, collection):
-        self.validation_mongodb(database, collection)
+        Validation.validation_mongodb(database, collection)
 
         from .System import system
         data = system.execute_interface('MongoDBCtrl', 'load_data', database, collection)
@@ -276,7 +274,7 @@ class DictList:
             self.sorted = False
 
     def export_mongodb(self, database, collection):
-        self.validation_mongodb(database, collection)
+        Validation.validation_mongodb(database, collection)
         self.sort_data()
 
         from .System import system
@@ -387,61 +385,3 @@ class DictList:
                 return self.data[index]
 
         return None
-
-    """
-    Internal validation functions
-
-    Methods:
-        validation_datum
-        validation_data
-        validation_dictlist
-        validation_filters
-    """
-    def validation_datum(self, datum):
-        if not isinstance(datum, dict):
-            raise AssertionError('datum(type:{}) should be dict.'.format(type(datum)))
-
-        if self.key is not None and self.key not in datum:
-            raise AssertionError('datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), self.key))
-
-    def validation_data(self, data):
-        if not isinstance(data, list):
-            raise AssertionError('data(type:{}) should be list.'.format(type(data)))
-
-        if self.key is not None:
-            for datum in data:
-                if self.key not in datum:
-                    raise AssertionError(
-                        'datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), self.key))
-
-    def validation_dictlist(self, dictlist):
-        if not isinstance(dict, DictList):
-            raise AssertionError('dictlist(type:{}) should be DictList.'.format(type(dictlist)))
-
-        self.validation_data(dictlist.get_data())
-
-    @staticmethod
-    def validation_filters(filters):
-        if filters is not None:
-            if not isinstance(filters, list):
-                raise AssertionError('filters(type:{}) should be list.'.format(type(filters)))
-
-            for filter in filters:
-                if not isinstance(filter, dict):
-                    raise AssertionError('filter(type:{}) should be dict.'.format(type(filter)))
-
-                if not ('key' in filter and 'value' in filter):
-                    raise AssertionError('filter(keys:{}) does not have key or value.'.format(list(filter.keys())))
-
-    @staticmethod
-    def validation_file(file):
-        if not isinstance(file, str):
-            raise AssertionError('file(type:{}) should be str.'.format(type(file)))
-
-    @staticmethod
-    def validation_mongodb(database, collection):
-        if not isinstance(database, str):
-            raise AssertionError('database(type:{}) should be str.'.format(type(database)))
-
-        if not isinstance(collection, str):
-            raise AssertionError('collection(type:{}) should be str.'.format(type(collection)))

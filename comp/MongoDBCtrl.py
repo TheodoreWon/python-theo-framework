@@ -15,18 +15,18 @@ class MongoDBCtrl(Component):
         from src.MongoDB import MongoDB
         self.db_handler = MongoDB()
 
-        system.register_interface('MongoDBCtrl', 'get_databases', [0], self.get_databases)
-        system.register_interface('MongoDBCtrl', 'get_collections', [1], self.get_collections)
-        system.register_interface('MongoDBCtrl', 'is_database_exist', [1], self.is_database_exist)
-        system.register_interface('MongoDBCtrl', 'is_collection_exist', [2], self.is_collection_exist)
+        system.register_interface(self.name, 'get_databases', [0], self.get_databases)
+        system.register_interface(self.name, 'get_collections', [1], self.get_collections)
+        system.register_interface(self.name, 'is_database_exist', [1], self.is_database_exist)
+        system.register_interface(self.name, 'is_collection_exist', [2], self.is_collection_exist)
 
-        system.register_interface('MongoDBCtrl', 'drop_database', [1], self.drop_database)
-        system.register_interface('MongoDBCtrl', 'drop_collection', [2], self.drop_collection)
+        system.register_interface(self.name, 'drop_database', [1], self.drop_database)
+        system.register_interface(self.name, 'drop_collection', [2], self.drop_collection)
 
-        system.register_interface('MongoDBCtrl', 'save_data', [3, 4], self.save_data)
-        system.register_interface('MongoDBCtrl', 'load_data', [2, 3, 4, 5], self.load_data)
-        system.register_interface('MongoDBCtrl', 'get_keys', [2], self.get_keys)
-        system.register_interface('MongoDBCtrl', 'get_range', [3], self.get_range)
+        system.register_interface(self.name, 'save_data', [3, 4], self.save_data)
+        system.register_interface(self.name, 'load_data', [2, 3, 4, 5], self.load_data)
+        system.register_interface(self.name, 'get_keys', [2], self.get_keys)
+        system.register_interface(self.name, 'get_range', [3], self.get_range)
 
     def get_databases(self):
         return self.db_handler.get_databases()

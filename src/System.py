@@ -30,8 +30,6 @@ class System:
     """
 
     interface_dictlist, component_dictlist = None, None
-    log = None
-
     is_admin_prompt_started = False
 
     def __init__(self):

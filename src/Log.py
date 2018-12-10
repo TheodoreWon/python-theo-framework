@@ -3,6 +3,8 @@ import os
 import datetime
 import shutil
 
+from .Validation import Validation
+
 
 """
 Configurations for Log
@@ -49,6 +51,8 @@ class Log:
     print_logger, store_logger = None, None
 
     def __init__(self, name):
+        Validation.validation_name(name)
+
         self.config()
 
         self.name = name

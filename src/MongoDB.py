@@ -1,5 +1,7 @@
 import pymongo
 
+from .Validation import Validation
+
 
 class MongoDB:
     """
@@ -48,15 +50,21 @@ class MongoDB:
         return True if database in self.client.database_names() else False
 
     def is_collection_exist(self, database, collection):
+        Validation.validation_mongodb(database, collection)
+
         return True if collection in self.client[database].collection_names() else False
 
     def drop_database(self, database):
         self.client.drop_database(database)
 
     def drop_collection(self, database, collection):
+        Validation.validation_mongodb(database, collection)
+
         self.client[database].drop_collection(collection)
 
     def save_data(self, database, collection, data, unique_key=None):
+        Validation.validation_mongodb(database, collection)
+
         if self.is_collection_exist(database, collection):
             if unique_key is None:
                 try:
@@ -77,25 +85,21 @@ class MongoDB:
                 raise AssertionError('[MongoDB] Fail to save data, because of the duplication.')
 
     def load_data(self, database, collection, sorting_key=None, keys=None, range=None):
+        Validation.validation_mongodb(database, collection)
+
         if not self.is_collection_exist(database, collection):
             return list()
 
-        self.validation_range(range)
+        from .Validation import Validation
+        Validation.validation_range(range)
 
         range_condition = dict()
 
         if range is not None:
-<<<<<<< HEAD
-            if 'min' in range.keys():
-                range_condition['$gte'] = range.get('min')
-
-            if 'min' in range.keys():
-=======
             if 'min' in range:
                 range_condition['$gte'] = range.get('min')
 
-            if 'min' in range:
->>>>>>> develop
+            if 'max' in range:
                 range_condition['$lte'] = range.get('max')
 
         cursor = self.client[database][collection].find(
@@ -106,24 +110,17 @@ class MongoDB:
         return list(cursor)
 
     def get_keys(self, database, collection):
+        Validation.validation_mongodb(database, collection)
+
         return list() if not self.is_collection_exist(database, collection) \
             else list(self.client[database][collection].find_one(projection=self.get_projection()).keys())
 
     def get_range(self, database, collection, key):
+        Validation.validation_mongodb(database, collection)
+
         if not self.is_collection_exist(database, collection):
             return None
 
-<<<<<<< HEAD
-        start_dict = self.client[database][collection].find_one(
-            projection=self.get_projection([key]), sort=[(key, pymongo.ASCENDING)])
-        end_dict = self.client[database][collection].find_one(
-            projection=self.get_projection([key]), sort=[(key, pymongo.DESCENDING)])
-
-        if key not in start_dict.keys() or key not in end_dict.keys():
-            return None
-
-        return {'key': key, 'start': start_dict[key], 'end': end_dict[key]}
-=======
         start = self.client[database][collection].find_one(
             projection=self.get_projection([key]), sort=[(key, pymongo.ASCENDING)])
         end = self.client[database][collection].find_one(
@@ -133,7 +130,6 @@ class MongoDB:
             return None
 
         return {'key': key, 'start': start[key], 'end': end[key]}
->>>>>>> develop
 
     @staticmethod
     def get_projection(keys=None):
@@ -146,16 +142,3 @@ class MongoDB:
             projection[key] = True
 
         return projection
-
-    @staticmethod
-    def validation_range(range):
-        if range is not None:
-            if not isinstance(range, dict):
-                raise AssertionError('range(type:{}) should be dict.'.format(type(range)))
-
-<<<<<<< HEAD
-            if not ('key' in range.keys() and ('min' in range.keys() or 'max' in range.keys())):
-=======
-            if not ('key' in range and ('min' in range or 'max' in range)):
->>>>>>> develop
-                raise AssertionError('range(keys:{}) does not have key or min, max.'.format(list(filter.keys())))
