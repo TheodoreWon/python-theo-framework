@@ -86,7 +86,7 @@ class DictList:
             filters = attr1
             for datum in self.data:
                 for filter in filters:
-                    if not (filter['key'] in datum.keys() and datum[filter['key']] == filter['value']):
+                    if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
                         break
                 else:
                     return copy.copy(datum)
@@ -113,7 +113,7 @@ class DictList:
                 return copy.copy(self.binary_search_datum(value))
             else:
                 for datum in self.data:
-                    if key in datum.keys() and datum[key] == value:
+                    if key in datum and datum[key] == value:
                         return copy.copy(datum)
 
                 return None
@@ -128,7 +128,11 @@ class DictList:
             data = list()
             for datum in self.data:
                 for filter in filters:
+<<<<<<< HEAD
                     if not (filter['key'] in datum.keys() and datum[filter['key']] == filter['value']):
+=======
+                    if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
+>>>>>>> develop
                         break
                 else:
                     data.append(datum)
@@ -143,11 +147,11 @@ class DictList:
 
         values = list()
         for datum in self.data:
-            if key not in datum.keys():
+            if key not in datum:
                 continue
 
             for filter in filters:
-                if not (filter['key'] in datum.keys() and datum[filter['key']] == filter['value']):
+                if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
                     break
             else:
                 values.append(datum[key])
@@ -397,7 +401,7 @@ class DictList:
         if not isinstance(datum, dict):
             raise AssertionError('datum(type:{}) should be dict.'.format(type(datum)))
 
-        if self.key is not None and self.key not in datum.keys():
+        if self.key is not None and self.key not in datum:
             raise AssertionError('datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), self.key))
 
     def validation_data(self, data):
@@ -406,7 +410,7 @@ class DictList:
 
         if self.key is not None:
             for datum in data:
-                if self.key not in datum.keys():
+                if self.key not in datum:
                     raise AssertionError(
                         'datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), self.key))
 
@@ -426,7 +430,7 @@ class DictList:
                 if not isinstance(filter, dict):
                     raise AssertionError('filter(type:{}) should be dict.'.format(type(filter)))
 
-                if not ('key' in filter.keys() and 'value' in filter.keys()):
+                if not ('key' in filter and 'value' in filter):
                     raise AssertionError('filter(keys:{}) does not have key or value.'.format(list(filter.keys())))
 
     @staticmethod

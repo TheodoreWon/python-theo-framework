@@ -161,6 +161,8 @@ class Prompt(cmd.Cmd):
 
         elif isinstance(result, list):
             print('[Prompt] Result : list(num:{})'.format(len(result)))
+            for index, datum in enumerate(result):
+                print('{} {}'.format(index, datum))
 
         else:
             print('[Prompt] Result : {}'.format(result))

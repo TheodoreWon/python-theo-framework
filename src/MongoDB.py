@@ -85,10 +85,17 @@ class MongoDB:
         range_condition = dict()
 
         if range is not None:
+<<<<<<< HEAD
             if 'min' in range.keys():
                 range_condition['$gte'] = range.get('min')
 
             if 'min' in range.keys():
+=======
+            if 'min' in range:
+                range_condition['$gte'] = range.get('min')
+
+            if 'min' in range:
+>>>>>>> develop
                 range_condition['$lte'] = range.get('max')
 
         cursor = self.client[database][collection].find(
@@ -106,6 +113,7 @@ class MongoDB:
         if not self.is_collection_exist(database, collection):
             return None
 
+<<<<<<< HEAD
         start_dict = self.client[database][collection].find_one(
             projection=self.get_projection([key]), sort=[(key, pymongo.ASCENDING)])
         end_dict = self.client[database][collection].find_one(
@@ -115,6 +123,17 @@ class MongoDB:
             return None
 
         return {'key': key, 'start': start_dict[key], 'end': end_dict[key]}
+=======
+        start = self.client[database][collection].find_one(
+            projection=self.get_projection([key]), sort=[(key, pymongo.ASCENDING)])
+        end = self.client[database][collection].find_one(
+            projection=self.get_projection([key]), sort=[(key, pymongo.DESCENDING)])
+
+        if key not in start or key not in end:
+            return None
+
+        return {'key': key, 'start': start[key], 'end': end[key]}
+>>>>>>> develop
 
     @staticmethod
     def get_projection(keys=None):
@@ -134,5 +153,9 @@ class MongoDB:
             if not isinstance(range, dict):
                 raise AssertionError('range(type:{}) should be dict.'.format(type(range)))
 
+<<<<<<< HEAD
             if not ('key' in range.keys() and ('min' in range.keys() or 'max' in range.keys())):
+=======
+            if not ('key' in range and ('min' in range or 'max' in range)):
+>>>>>>> develop
                 raise AssertionError('range(keys:{}) does not have key or min, max.'.format(list(filter.keys())))

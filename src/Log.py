@@ -3,8 +3,6 @@ import os
 import datetime
 import shutil
 
-from .DictList import DictList
-
 
 """
 Configurations for Log
@@ -77,6 +75,8 @@ class Log:
 
         if not os.path.exists(log_directory):
             os.makedirs(log_directory)
+
+        from .DictList import DictList
 
         if self.name_config_dictlist is None:
             self.name_config_dictlist = DictList(key='name')
