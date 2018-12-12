@@ -289,8 +289,8 @@ class DictList:
         sort_data
         sort_data > is_data_ascending_order
         sort_data > is_data_descending_order
-        sort_data > reverse_data_order
-        sort_data > recursive_quick_sort
+        sort_data > get_reversed_data
+        sort_data > get_recursive_quick_sorted_data
 
         binary_search
 
@@ -313,17 +313,18 @@ class DictList:
             elif len(self.walkers):
                 raise AssertionError('The data cannot be sorted. Walkers are working.')
             elif self.is_data_descending_order(self.data, self.key):
-                self.reverse_data_order(self.data)
+                source_data = copy.copy(self.data)
+                self.data.clear()
+                self.data.extend(self.get_reversed_data(source_data))
                 self.sorted = True
             else:
-                self.recursive_quick_sort_data(self.data, self.key)
+                source_data = copy.copy(self.data)
+                self.data.clear()
+                self.data.extend(self.get_recursive_quick_sorted_data(source_data, self.key))
                 self.sorted = True
 
     @staticmethod
     def is_data_ascending_order(data, key):
-        if len(data) < 2:
-            return True
-
         for index in range(1, len(data)):
             if data[index - 1][key] > data[index][key]:
                 return False
@@ -332,39 +333,37 @@ class DictList:
 
     @staticmethod
     def is_data_descending_order(data, key):
-        if len(data) < 2:
-            return True
-
-        for index in range(2, len(data)):
+        for index in range(1, len(data)):
             if data[index - 1][key] < data[index][key]:
                 return False
 
         return True
 
     @staticmethod
-    def reverse_data_order(data):
-        source_data = copy.copy(data)
-        data.clear()
-        for datum in reversed(source_data):
-            data.append(datum)
+    def get_reversed_data(data):
+        reversed_data = list()
+        for datum in reversed(data):
+            reversed_data.append(datum)
+
+        return reversed_data
 
     @staticmethod
-    def recursive_quick_sort_data(data, key):
+    def get_recursive_quick_sorted_data(data, key):
         if len(data) > 1:
             pivot = data[random.randint(0, len(data) - 1)]
-            left_list, middle_list, right_list = list(), list(), list()
+            left_data, middle_data, right_data = list(), list(), list()
 
             for index in range(len(data)):
                 if data[index][key] < pivot[key]:
-                    left_list.append(data[index])
+                    left_data.append(data[index])
                 elif data[index][key] > pivot[key]:
-                    right_list.append(data[index])
+                    right_data.append(data[index])
                 else:
-                    middle_list.append(data[index])
+                    middle_data.append(data[index])
 
-            return DictList.recursive_quick_sort_data(left_list, key) \
-                + middle_list \
-                + DictList.recursive_quick_sort_data(right_list, key)
+            return DictList.get_recursive_quick_sorted_data(left_data, key) \
+                + middle_data \
+                + DictList.get_recursive_quick_sorted_data(right_data, key)
         else:
             return data
 
