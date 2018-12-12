@@ -12,6 +12,8 @@ class System:
     Because the interface module works with registered interfaces by components,
     Please use System with Component class.
 
+    Prompt is provided in System class.
+
     Methods:
         register_interface(component, interface, argument_numbers, func)
         execute_interface(component, interface, *arguments)
@@ -21,24 +23,19 @@ class System:
 
         start_admin_prompt()
 
-        Example:
-            if __name__ == "__main__":
-                system = System()
-                # system.register_component('component', Component)
-                system.startup_components()
-                system.start_admin_prompt()
+    Example:
+        if __name__ == "__main__":
+            system = System()
+            # system.register_component('--component--name--', --component--name--)
+            system.startup_components()
+            system.start_admin_prompt()
     """
 
-    interface_dictlist, component_dictlist = None, None
+    from .DictList import DictList
+    interface_dictlist = DictList()
+    component_dictlist = DictList('name')
+
     is_admin_prompt_started = False
-
-    def __init__(self):
-        from .DictList import DictList
-        if self.interface_dictlist is None:
-            self.interface_dictlist = DictList()
-
-        if self.component_dictlist is None:
-            self.component_dictlist = DictList('name')
 
     def register_interface(self, component, interface, argument_numbers, func):
         if self.interface_dictlist.get_datum(

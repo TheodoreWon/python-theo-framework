@@ -7,6 +7,9 @@ class MongoDB:
     """
     MongoDB supports the functionality to mangage a database.
 
+    Pre-condition:
+        pip install pymongo
+
     Methods:
         Mongo()
 
@@ -50,7 +53,7 @@ class MongoDB:
         return True if database in self.client.database_names() else False
 
     def is_collection_exist(self, database, collection):
-        Validation.validation_mongodb(database, collection)
+        Validation.validate_mongodb(database, collection)
 
         return True if collection in self.client[database].collection_names() else False
 
@@ -58,12 +61,12 @@ class MongoDB:
         self.client.drop_database(database)
 
     def drop_collection(self, database, collection):
-        Validation.validation_mongodb(database, collection)
+        Validation.validate_mongodb(database, collection)
 
         self.client[database].drop_collection(collection)
 
     def save_data(self, database, collection, data, unique_key=None):
-        Validation.validation_mongodb(database, collection)
+        Validation.validate_mongodb(database, collection)
 
         if self.is_collection_exist(database, collection):
             if unique_key is None:
@@ -85,13 +88,13 @@ class MongoDB:
                 raise AssertionError('[MongoDB] Fail to save data, because of the duplication.')
 
     def load_data(self, database, collection, sorting_key=None, keys=None, range=None):
-        Validation.validation_mongodb(database, collection)
+        Validation.validate_mongodb(database, collection)
 
         if not self.is_collection_exist(database, collection):
             return list()
 
         from .Validation import Validation
-        Validation.validation_range(range)
+        Validation.validate_range(range)
 
         range_condition = dict()
 
@@ -110,13 +113,13 @@ class MongoDB:
         return list(cursor)
 
     def get_keys(self, database, collection):
-        Validation.validation_mongodb(database, collection)
+        Validation.validate_mongodb(database, collection)
 
         return list() if not self.is_collection_exist(database, collection) \
             else list(self.client[database][collection].find_one(projection=self.get_projection()).keys())
 
     def get_range(self, database, collection, key):
-        Validation.validation_mongodb(database, collection)
+        Validation.validate_mongodb(database, collection)
 
         if not self.is_collection_exist(database, collection):
             return None

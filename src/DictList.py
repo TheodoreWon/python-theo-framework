@@ -83,7 +83,7 @@ class DictList:
     def get_datum(self, attr1, attr2=None):
         # get_datum(filters)
         if attr2 is None and isinstance(attr1, list):
-            Validation.validation_filters(attr1)
+            Validation.validate_filters(attr1)
 
             filters = attr1
             for datum in self.data:
@@ -121,7 +121,7 @@ class DictList:
                 return None
 
     def get_data(self, filters=None):
-        Validation.validation_filters(filters)
+        Validation.validate_filters(filters)
 
         if filters is None:
             return copy.copy(self.data)
@@ -138,7 +138,7 @@ class DictList:
             return data
 
     def get_values(self, key, overlap=False, filters=None):
-        Validation.validation_filters(filters)
+        Validation.validate_filters(filters)
 
         if filters is None:
             filters = list()
@@ -160,26 +160,26 @@ class DictList:
             return list(collections.OrderedDict.fromkeys(values))
 
     def append(self, datum):
-        Validation.validation_datum(self.key, datum)
+        Validation.validate_datum(self.key, datum)
 
         self.data.append(datum)
         self.sorted = False
 
     def insert(self, datum):
-        Validation.validation_datum(self.key, datum)
+        Validation.validate_datum(self.key, datum)
 
         self.data.insert(0, datum)
         self.sorted = False
 
     def extend(self, dictlist):
-        Validation.validation_dictlist(self.key, dictlist)
+        Validation.validate_dictlist(self.key, dictlist)
 
         if len(dictlist.count()):
             self.data.extend(dictlist.get_data())
             self.sorted = False
 
     def extend_data(self, data):
-        Validation.validation_data(self.key, data)
+        Validation.validate_data(self.key, data)
 
         if len(data):
             self.data.extend(data)
@@ -201,7 +201,7 @@ class DictList:
         self.sorted = True
 
     def import_json(self, file):
-        Validation.validation_file(file)
+        Validation.validate_file(file)
 
         if os.path.exists(file):
             file_handler = open(file, 'r')
@@ -211,7 +211,7 @@ class DictList:
             self.sorted = False
 
     def export_json(self, file):
-        Validation.validation_file(file)
+        Validation.validate_file(file)
         self.sort_data()
 
         if not os.path.exists(os.path.dirname(os.path.abspath(file))):
@@ -222,7 +222,7 @@ class DictList:
         file_handler.close()
 
     def import_csv(self, file):
-        Validation.validation_file(file)
+        Validation.validate_file(file)
 
         if os.path.exists(file):
             file_handler = open(file, 'r', encoding='utf-8-sig')
@@ -244,7 +244,7 @@ class DictList:
             self.sorted = False
 
     def export_csv(self, file):
-        Validation.validation_file(file)
+        Validation.validate_file(file)
         self.sort_data()
 
         if not os.path.exists(os.path.dirname(os.path.abspath(file))):
@@ -265,7 +265,7 @@ class DictList:
             file_handler.close()
 
     def import_mongodb(self, database, collection):
-        Validation.validation_mongodb(database, collection)
+        Validation.validate_mongodb(database, collection)
 
         from .System import system
         data = system.execute_interface('MongoDBCtrl', 'load_data', database, collection)
@@ -274,7 +274,7 @@ class DictList:
             self.sorted = False
 
     def export_mongodb(self, database, collection):
-        Validation.validation_mongodb(database, collection)
+        Validation.validate_mongodb(database, collection)
         self.sort_data()
 
         from .System import system

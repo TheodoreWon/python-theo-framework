@@ -9,11 +9,33 @@ class Component(metaclass=abc.ABCMeta):
     In the project, components are initialized and communicated using interface functions.
     Please use System with Component class.
 
-    At the last of this file, there is the form for initial component.
+    How to use:
+        Copy the example and change the --component-name--
+        Define the function, set_related_components and append related_components at self.related_components.
+        Define the function, initial and add calling system.register_interface and initial sequence for it.
+        Add system.register_component('--component-name--', --component-name--) at program main.
+        When program main call system.startup_components(), the component will be initialized.
+
+        You can refer MongoDBCtrl class from comp/MongoDBCtrl.py.
+
+    Example:
+        from theoLibrary.src.Component import Component
+        from theoLibrary.src.System import system
+
+
+        class --component--name--(Component):
+            def set_related_components(self):
+                # self.related_components.append('--component--name--')
+                self.related_components.clear()
+
+            def initial(self):
+                self.log.print('info', 'initial (related:{})'.format(self.related_components))
+
+                # system.register_interface(self.name, 'interface', [0], None)
     """
 
     def __init__(self, name):
-        Validation.validation_name(name)
+        Validation.validate_name(name)
 
         self.name = name
 
@@ -36,20 +58,3 @@ class Component(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def initial(self):
         pass
-
-
-'''
-from theoLibrary.src.Component import Component
-from theoLibrary.src.System import system
-
-
-class --component--(Component):
-    def set_related_components(self):
-        # self.related_components.append('--component--')
-        self.related_components.clear()
-
-    def initial(self):
-        self.log.print('info', 'initial (related:{})'.format(self.related_components))
-
-        # system.register_interface(self.name, 'interface', [0], None)
-'''

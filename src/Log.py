@@ -28,6 +28,9 @@ days_over_time = 2  # 0 : never clear log data
 default_level = 'default'
 default_level_value = 50
 
+print_logger = None
+store_logger = None
+
 
 class Log:
     """
@@ -47,11 +50,12 @@ class Log:
         log = Log('name')
         log.print('info', 'Hello, theo library.')
     """
-    name_config_dictlist, level_config_dictlist = None, None
-    print_logger, store_logger = None, None
+    from .DictList import DictList
+    name_config_dictlist = DictList(key='name')
+    level_config_dictlist = DictList(key='level')
 
     def __init__(self, name):
-        Validation.validation_name(name)
+        Validation.validate_name(name)
 
         self.config()
 
@@ -64,11 +68,11 @@ class Log:
             log += str(message)
 
         level_value = self.get_level_value(level)
-        if print_enabled and level_value >= self.get_level_value(self.level_config['print']):
-            self.print_logger.info(log)
+        if print_logger is not None and level_value >= self.get_level_value(self.level_config['print']):
+            print_logger.info(log)
 
-        if store_enabled and level_value >= self.get_level_value(self.level_config['store']):
-            self.store_logger.info(log)
+        if store_logger is not None and level_value >= self.get_level_value(self.level_config['store']):
+            store_logger.info(log)
 
     """
     Internal configuration functions
@@ -80,19 +84,11 @@ class Log:
         if not os.path.exists(log_directory):
             os.makedirs(log_directory)
 
-        from .DictList import DictList
+        if self.name_config_dictlist.count() == 0 and os.path.exists(name_config_file):
+            self.name_config_dictlist.import_json(name_config_file)
 
-        if self.name_config_dictlist is None:
-            self.name_config_dictlist = DictList(key='name')
-
-            if os.path.exists(name_config_file):
-                self.name_config_dictlist.import_json(name_config_file)
-
-        if self.level_config_dictlist is None:
-            self.level_config_dictlist = DictList(key='level')
-
-            if os.path.exists(level_config_file):
-                self.level_config_dictlist.import_json(level_config_file)
+        if self.level_config_dictlist.count() == 0 and os.path.exists(level_config_file):
+            self.level_config_dictlist.import_json(level_config_file)
 
         if days_over_time > 0:
             for log_date_directory in os.listdir(log_root_directory):
@@ -100,22 +96,24 @@ class Log:
                         <= (datetime.datetime.now() - datetime.datetime.strptime(log_date_directory, '%Y-%m-%d')).days:
                     shutil.rmtree(os.path.join(log_root_directory, log_date_directory))
 
-        if print_enabled and self.print_logger is None:
-            self.print_logger = logging.getLogger('print')
-            self.print_logger.setLevel(logging.INFO)
+        global print_logger
+        if print_enabled and print_logger is None:
+            print_logger = logging.getLogger('print')
+            print_logger.setLevel(logging.INFO)
 
             print_stream_handler = logging.StreamHandler()
             print_stream_handler.setFormatter(logging.Formatter('[%(asctime)s]%(message)s'))
-            self.print_logger.addHandler(print_stream_handler)
+            print_logger.addHandler(print_stream_handler)
 
-        if store_enabled and self.store_logger is None:
-            self.store_logger = logging.getLogger('store')
-            self.store_logger.setLevel(logging.INFO)
+        global store_logger
+        if store_enabled and store_logger is None:
+            store_logger = logging.getLogger('store')
+            store_logger.setLevel(logging.INFO)
 
             file_handler = logging.FileHandler(
                 os.path.join(log_directory, datetime.datetime.now().strftime('%H-%M-%S.log')))
             file_handler.setFormatter(logging.Formatter('[%(asctime)s]%(message)s'))
-            self.store_logger.addHandler(file_handler)
+            store_logger.addHandler(file_handler)
 
     def get_level_config(self, name):
         name_config = self.name_config_dictlist.get_datum(name)

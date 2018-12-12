@@ -19,23 +19,22 @@ class Kiwoom(PyQt5.QAxContainer.QAxWidget):
     Kiwoom provides the functionality to control Kiwoom API.
     To use the Kiwoom API, it is obligation to setup the Kiwoom API environment.
 
+    TODO: It is not tested. It should be tested with a project use.
 
     Methods:
         Kiwoom()
-
         get_accounts()
-
         get_markets()
         get_codes(market)
         get_price_types(market, code)
-
         get_item(market, code)
         get_prices(market, code, price_type, range=None)
     """
 
-    tran_dictlist = None
-    market_dictlist = None
-    error_dictlist = None
+    from .DictList import DictList
+    tran_dictlist = DictList('separator')
+    market_dictlist = DictList('market')
+    error_dictlist = DictList('code')
 
     def __init__(self):
         from .Log import Log
@@ -91,7 +90,7 @@ class Kiwoom(PyQt5.QAxContainer.QAxWidget):
         return None
 
     def get_prices(self, market, code, price_type, range=None):
-        Validation.validation_range(range)
+        Validation.validate_range(range)
 
         if code in self.get_codes(market):
             start = '19700101' if range is None or 'start' not in range \
@@ -192,9 +191,7 @@ class Kiwoom(PyQt5.QAxContainer.QAxWidget):
         self.config_error()
 
     def config_tran(self):
-        if self.tran_dictlist is None:
-            from .DictList import DictList
-            self.tran_dictlist = DictList('separator')
+        if self.tran_dictlist.count() == 0:
             self.tran_dictlist.extend_data([
                 {
                     'separator': 'get_item',
@@ -284,9 +281,7 @@ class Kiwoom(PyQt5.QAxContainer.QAxWidget):
             ])
 
     def config_market(self):
-        if self.market_dictlist is None:
-            from .DictList import DictList
-            self.market_dictlist = DictList('market')
+        if self.market_dictlist.count() == 0:
             self.market_dictlist.extend_data([
                 {'code': 0, 'market': 'kospi'},
                 {'code': 10, 'market': 'kosdaq'},
@@ -302,9 +297,7 @@ class Kiwoom(PyQt5.QAxContainer.QAxWidget):
             ])
 
     def config_error(self):
-        if self.error_dictlist is None:
-            from .DictList import DictList
-            self.error_dictlist = DictList('code')
+        if self.error_dictlist.count() == 0:
             self.error_dictlist.extend_data([
                 {'code': 0, 'error': 'OP_ERR_NONE'},
                 {'code': -10, 'error': 'OP_ERR_FAIL'},
