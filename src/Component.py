@@ -19,8 +19,8 @@ class Component(metaclass=abc.ABCMeta):
         You can refer MongoDBCtrl class from comp/MongoDBCtrl.py.
 
     Example:
-        from python-library.src.Component import Component
-        from python-library.src.System import system
+        from pythonLibrary.src.Component import Component
+        from pythonLibrary.src.System import system
 
 
         class --component--name--(Component):

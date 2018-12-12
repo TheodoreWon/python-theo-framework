@@ -1,4 +1,4 @@
-# python-library
+# pythonLibrary
 
 It is the library what makes building a project easy.
 
@@ -14,10 +14,10 @@ I am likely waiting a any kind of contribution.
 
 This is the only library to be used by any kind of project.
 You can clone this in your project and import files.
-I would like to recommend to store python-library in your project folder.
+I would like to recommend to store pythonLibrary in your project folder.
 
 Source code have documentation to explain what is, how to use.
-And also examples are located in root folder, python-library.py.
+And also examples are located in root folder, pythonLibrary.py.
 I draw diagrams to let you understand the library too.
 Please check doc folder.
 
