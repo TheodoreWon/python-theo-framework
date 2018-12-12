@@ -1,6 +1,6 @@
 """
-This is the example to show how to use theoLibrary.
-By the execution of this file, it is easy to understand how to work and how to use theoLibrary.
+This is the example to show how to use python-library.
+By the execution of this file, it is easy to understand how to work and how to use python-library.
 """
 
 if __name__ == "__main__":

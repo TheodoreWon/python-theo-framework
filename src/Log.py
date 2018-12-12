@@ -48,7 +48,7 @@ class Log:
 
     Example:
         log = Log('name')
-        log.print('info', 'Hello, theo library.')
+        log.print('info', 'Hello, python-library.')
     """
     from .DictList import DictList
     name_config_dictlist = DictList(key='name')
