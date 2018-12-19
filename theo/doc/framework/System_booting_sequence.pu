@@ -5,7 +5,7 @@ participant main
 activate main
 
 create participant System
-main -> System: import System
+main -> System: system = System()
 
 main -> System: register_component(component, constructor)
 note right: register components continuously
@@ -13,7 +13,7 @@ main -> System: startup_components()
 activate System
 
 create collections Component
-System -> Component: Component(system, name)
+System -> Component: Component(system, name, system)
 note right: new components continuously
 activate Component
 Component -> Component: set_related_components()
@@ -46,7 +46,7 @@ end note
 
 deactivate System
 
-main -> System: start_admin_prompt()
+main -> System: start_prompt()
 activate System
 
 create participant Prompt

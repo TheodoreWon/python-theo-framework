@@ -5,8 +5,6 @@ import os
 import json
 import csv
 
-from .Validation import Validation
-
 
 class DictList:
     """
@@ -15,41 +13,54 @@ class DictList:
 
     If a key is set, quick sorting and binary searching is provided.
     The functionality gives us good performance for getting data.
-    A variety importing and exporting methods is supported. JSON, CSV, MONGODB
+    A variety of importing and exporting methods is supported. (JSON, CSV, MONGODB, etc.)
     And to refine a data, walker feature is supported.
+
+    Attributes:
+        key (str, optional): To support sorting and searching algorithm, a key is needed.
+                                If the key is set, all of the datum dictionary should includes the key.
 
     Methods:
         dictlist = DictList(key=None)
         print()
 
-        length = count()
-        datum = get_datum(value)
-        datum = get_datum(filters)
-        datum = get_datum(key, value)
-        data = get_data(filters=None)
+        length = count() : getting the count value how many dictionaries are stored.
+        datum = get_datum(value) : getting the dictionary datum what is matched with the stored key and argument value.
+        datum = get_datum(filters) : getting the datum what is matched with argument filters.
+        datum = get_datum(key, value) : getting the datum what is matched with argument key and argument value.
+        data = get_data(filters=None) : getting the data what is matched with arguments filters.
         values = get_values(key, overlap=False, filters=None)
+            filters (list): dictionary datum list. the filter has the key, 'key' and 'value'.
 
-        append(datum)
-        insert(datum)
-        extend(dictlist)
-        extend_data(data)
+        append(datum) : appending argument datum
+        insert(datum) : inserting argument datum at the first of the stored list
+        extend(dictlist) : extending the data from argument dictlist
+        extend_data(data) : extending the data
 
-        remove_datum(datum)
-        datum = pop_datum(datum)
-        clear()
+        remove_datum(datum) : removing argument datum if the datum is exist in the stored list
+        datum = pop_datum(datum) : poping argument datum if the datum is exist in the stored list
+        clear() : clear the stored list
 
-        import_json(file)
-        export_json(file)
-        import_csv(file)
-        export_csv(file)
-        import_mongodb(database, collection)
-        export_mongodb(database, collection)
+        import_json(file) : importing the json data from json file
+        export_json(file) : exporting the data what is stored list to csv file
+        import_csv(file) : importing the json data from json file
+        export_csv(file) : exporting the data what is stored list to csv file
+            file (str): the file path (ex. os.path.join(os.getcwd(), 'files', 'data.json'))
+
+        TODO: import_mongodb(database, collection)
+        TODO: export_mongodb(database, collection)
 
         TODO: walker_handler = plug_in_walker(walker, walker_delay=False, insert=False)
         TODO: plug_out_walker(walker_handler)
 
-    Development guide:
-        External function should validate parameters before calling an internal function.
+    Example:
+        contract_dictlist = DictList(key='name')
+        contract_dictlist.import_csv(os.path.join(os.getcwd(), 'files', 'contract.csv'))
+        contract_dictlist.print()
+
+        contract_dictlist.append({'name': 'theo', 'email': 'taehee.won@gmail.com'})
+        theo_contract = contract_dictlist.get_datum('theo')
+        print(theo_contract) : {'name': 'theo', 'email': 'taehee.won@gmail.com'}
     """
 
     def __init__(self, key=None):
@@ -83,7 +94,7 @@ class DictList:
     def get_datum(self, attr1, attr2=None):
         # get_datum(filters)
         if attr2 is None and isinstance(attr1, list):
-            Validation.validate_filters(attr1)
+            self.validate_filters(attr1)
 
             filters = attr1
             for datum in self.data:
@@ -121,7 +132,7 @@ class DictList:
                 return None
 
     def get_data(self, filters=None):
-        Validation.validate_filters(filters)
+        self.validate_filters(filters)
 
         if filters is None:
             return copy.copy(self.data)
@@ -138,7 +149,7 @@ class DictList:
             return data
 
     def get_values(self, key, overlap=False, filters=None):
-        Validation.validate_filters(filters)
+        self.validate_filters(filters)
 
         if filters is None:
             filters = list()
@@ -160,26 +171,26 @@ class DictList:
             return list(collections.OrderedDict.fromkeys(values))
 
     def append(self, datum):
-        Validation.validate_datum(self.key, datum)
+        self.validate_datum(self.key, datum)
 
         self.data.append(datum)
         self.sorted = False
 
     def insert(self, datum):
-        Validation.validate_datum(self.key, datum)
+        self.validate_datum(self.key, datum)
 
         self.data.insert(0, datum)
         self.sorted = False
 
     def extend(self, dictlist):
-        Validation.validate_dictlist(self.key, dictlist)
+        self.validate_dictlist(self.key, dictlist)
 
         if len(dictlist.count()):
             self.data.extend(dictlist.get_data())
             self.sorted = False
 
     def extend_data(self, data):
-        Validation.validate_data(self.key, data)
+        self.validate_data(self.key, data)
 
         if len(data):
             self.data.extend(data)
@@ -201,7 +212,7 @@ class DictList:
         self.sorted = True
 
     def import_json(self, file):
-        Validation.validate_file(file)
+        self.validate_file(file)
 
         if os.path.exists(file):
             file_handler = open(file, 'r')
@@ -211,7 +222,7 @@ class DictList:
             self.sorted = False
 
     def export_json(self, file):
-        Validation.validate_file(file)
+        self.validate_file(file)
         self.sort_data()
 
         if not os.path.exists(os.path.dirname(os.path.abspath(file))):
@@ -222,7 +233,7 @@ class DictList:
         file_handler.close()
 
     def import_csv(self, file):
-        Validation.validate_file(file)
+        self.validate_file(file)
 
         if os.path.exists(file):
             file_handler = open(file, 'r', encoding='utf-8-sig')
@@ -244,7 +255,7 @@ class DictList:
             self.sorted = False
 
     def export_csv(self, file):
-        Validation.validate_file(file)
+        self.validate_file(file)
         self.sort_data()
 
         if not os.path.exists(os.path.dirname(os.path.abspath(file))):
@@ -264,21 +275,22 @@ class DictList:
 
             file_handler.close()
 
+    """
+    TODO: functionality of mongodb
     def import_mongodb(self, database, collection):
-        Validation.validate_mongodb(database, collection)
+        self.validate_mongodb(database, collection)
 
-        from .System import system
-        data = system.execute_interface('MongoDBCtrl', 'load_data', database, collection)
+        # data = system.execute_interface('MongoDBCtrl', 'load_data', database, collection)
         if len(data):
             self.data.extend(data)
             self.sorted = False
 
     def export_mongodb(self, database, collection):
-        Validation.validate_mongodb(database, collection)
+        self.validate_mongodb(database, collection)
         self.sort_data()
 
-        from .System import system
-        system.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
+        # system.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
+    """
 
     """
     Internal sorting, searching functions
@@ -294,9 +306,9 @@ class DictList:
 
         binary_search
 
-    NOTE: Why the reverse function is worked?
-            Theo usually use the DictList to store stock price data.
-            From stock server, the price data is reversed.
+    NOTE: Why here is the reverse?
+            DictList could be used to store stock price data.
+            Usually, the stock servers provide price data by reversed order.
             To sort reversed data, the sorting algorithm works as the worst performance.
             That is why the reverse function is exist.
 
@@ -384,3 +396,50 @@ class DictList:
                 return self.data[index]
 
         return None
+
+    """
+    Internal validation functions
+    """
+
+    @staticmethod
+    def validate_datum(key, datum):
+        if not isinstance(datum, dict):
+            raise AssertionError('datum(type:{}) should be dict.'.format(type(datum)))
+
+        if key is not None and key not in datum:
+            raise AssertionError('datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), key))
+
+    @staticmethod
+    def validate_data(key, data):
+        if not isinstance(data, list):
+            raise AssertionError('data(type:{}) should be list.'.format(type(data)))
+
+        if key is not None:
+            for datum in data:
+                if key not in datum:
+                    raise AssertionError('datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), key))
+
+    @staticmethod
+    def validate_dictlist(key, dictlist):
+        if not isinstance(dict, DictList):
+            raise AssertionError('dictlist(type:{}) should be DictList.'.format(type(dictlist)))
+
+        DictList.validate_data(key, dictlist.get_data())
+
+    @staticmethod
+    def validate_filters(filters):
+        if filters is not None:
+            if not isinstance(filters, list):
+                raise AssertionError('filters(type:{}) should be list.'.format(type(filters)))
+
+            for filter in filters:
+                if not isinstance(filter, dict):
+                    raise AssertionError('filter(type:{}) should be dict.'.format(type(filter)))
+
+                if not ('key' in filter and 'value' in filter):
+                    raise AssertionError('filter(keys:{}) does not have key or value.'.format(list(filter.keys())))
+
+    @staticmethod
+    def validate_file(file):
+        if not isinstance(file, str):
+            raise AssertionError('file(type:{}) should be str.'.format(type(file)))

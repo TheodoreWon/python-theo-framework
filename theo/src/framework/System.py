@@ -1,6 +1,7 @@
 import threading
 import queue
 import cmd
+from theo.src.framework.DictList import DictList
 
 
 class System:
@@ -10,78 +11,81 @@ class System:
 
     System supports a prompt functionality to execute your system.
     Because the interface module works with registered interfaces by components,
-    Please use System with Component class.
-
-    Prompt is provided in System class.
+    Please use System with Component.
 
     Methods:
-        register_interface(component, interface, argument_numbers, func)
-        execute_interface(component, interface, *arguments)
+        register_interface(component, interface, argument_numbers, func) : registering interface
+        execute_interface(component, interface, *arguments) : executing interface
 
         register_component(name, constructor)
         startup_components()
 
-        start_admin_prompt()
+        start_prompt()
 
-    Example:
-        if __name__ == "__main__":
-            system = System()
-            # system.register_component('--component--name--', --component--name--)
-            system.startup_components()
-            system.start_admin_prompt()
+    Examples:
+        def set_theo_friend(name):
+            print('Theo has a friend, {}'.format(name))
+
+        register_interface('theo', 'set_theo_friend', [1], set_theo_friend)
+        execute_interface('theo', 'set_theo_friend', 'Grace')
     """
 
-    from .DictList import DictList
     interface_dictlist = DictList()
     component_dictlist = DictList('name')
 
-    is_admin_prompt_started = False
+    is_prompt_started = False
 
+    @staticmethod
     def register_interface(self, component, interface, argument_numbers, func):
-        if self.interface_dictlist.get_datum(
-                [{'key': 'component', 'value': component}, {'key': 'interface', 'value': interface}]) is not None:
-            raise AssertionError('interface(component:{}/interface:{}) is exist.'.format(component, interface))
-
-        self.interface_dictlist.append(
-            {'component': component, 'interface': interface, 'argument_numbers': argument_numbers, 'func': func})
+        if System.interface_dictlist.get_datum(
+                [{'key': 'component', 'value': component}, {'key': 'interface', 'value': interface}]) is None:
+            System.interface_dictlist.append(
+                {'component': component, 'interface': interface, 'argument_numbers': argument_numbers, 'func': func})
+        else:
+            print('[theo.framework.System] warning: interface(component:{}/interface:{}) is already registered.'.format(
+                component, interface))
 
     def execute_interface(self, component, interface, *arguments):
-        interface = self.interface_dictlist.get_datum(
+        interface = System.interface_dictlist.get_datum(
             [{'key': 'component', 'value': component}, {'key': 'interface', 'value': interface}])
 
         if interface is not None and len(arguments) in interface['argument_numbers']:
             return interface['func'](*arguments)
 
-        # print('[System] Warning: interface is not exist.')
-        # raise AssertionError('[System] interface is not exist.')
+        print('[theo.framework.System] warning: interface(component:{}/interface:{}) is not exist.'.format(
+            component, interface))
         return None
 
     def register_component(self, name, constructor):
-        if self.component_dictlist.get_datum('name', name) is not None:
-            raise AssertionError('component({}) is exist.'.format(name))
-
-        self.component_dictlist.append({'name': name, 'constructor': constructor})
+        if System.component_dictlist.get_datum('name', name) is None:
+            System.component_dictlist.append({'name': name, 'constructor': constructor, 'system': self})
+        else:
+            print('[theo.framework.System] warning: component({}) is already registered.')
 
     def startup_components(self):
+        filter = {'key': 'system', 'value': self}
+
         componets = []
-        for component in self.component_dictlist.get_data():
+        for component in System.component_dictlist.get_data([filter]):
             componets.append(component['name'])
             component['handler'] = component['constructor'](component['name'])
 
-        for component in self.component_dictlist.get_data():
+        for component in System.component_dictlist.get_data([filter]):
             component['handler'].check_connected(componets)
 
-        for component in self.component_dictlist.get_data():
+        for component in System.component_dictlist.get_data([filter]):
             component['handler'].initial()
 
-    def start_admin_prompt(self):
-        if not self.is_admin_prompt_started:
+    def start_prompt(self):
+        if not System.is_prompt_started:
             system_queue = queue.Queue()
             prompt_queue = queue.Queue()
 
             prompt = Prompt()
             prompt.set_queue(system_queue, prompt_queue)
             threading.Thread(target=prompt.cmdloop).start()
+
+            System.is_prompt_started = True
 
             while True:
                 messages = system_queue.get()
@@ -90,7 +94,7 @@ class System:
                     break
 
                 elif len(messages) == 1 and messages[0] == 'get_interfaces':
-                    prompt_queue.put(self.interface_dictlist.get_data())
+                    prompt_queue.put(System.interface_dictlist.get_data())
 
                 elif len(messages) >= 2:
                     print('[System] execute interface({})'.format(messages))
@@ -99,9 +103,8 @@ class System:
                 else:
                     # print('[System] invalid command({})'.format(messages))
                     prompt_queue.put(None)
-
-
-system = System()
+        else:
+            print('[theo.framework.System] warning: prompt is already started.')
 
 
 class Prompt(cmd.Cmd):
@@ -146,10 +149,8 @@ class Prompt(cmd.Cmd):
             return ''
 
         self.system_queue.put(inputs)
-
         result = self.prompt_queue.get()
 
-        from .DictList import DictList
         if isinstance(result, DictList):
             print('[Prompt] Result : below dictlist')
             result.print()
