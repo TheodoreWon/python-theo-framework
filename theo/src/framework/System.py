@@ -7,11 +7,11 @@ from theo.src.framework.DictList import DictList
 class System:
     """
     System provides component and interface functionality.
-    It makes you to build your system easily.
+    It makes you to build your system easy.
 
     System supports a prompt functionality to execute your system.
     Because the interface module works with registered interfaces by components,
-    Please use System with Component.
+        please use System with Component.
 
     Methods:
         register_interface(component, interface, argument_numbers, func) : registering interface
@@ -23,11 +23,13 @@ class System:
         start_prompt()
 
     Examples:
+        from theo.framework import System
+
         def set_theo_friend(name):
             print('Theo has a friend, {}'.format(name))
 
-        register_interface('theo', 'set_theo_friend', [1], set_theo_friend)
-        execute_interface('theo', 'set_theo_friend', 'Grace')
+        System.register_interface('theo', 'set_theo_friend', [1], set_theo_friend)
+        System.execute_interface('theo', 'set_theo_friend', 'Grace')
     """
 
     interface_dictlist = DictList()
@@ -36,7 +38,7 @@ class System:
     is_prompt_started = False
 
     @staticmethod
-    def register_interface(self, component, interface, argument_numbers, func):
+    def register_interface(component, interface, argument_numbers, func):
         if System.interface_dictlist.get_datum(
                 [{'key': 'component', 'value': component}, {'key': 'interface', 'value': interface}]) is None:
             System.interface_dictlist.append(
@@ -45,7 +47,8 @@ class System:
             print('[theo.framework.System] warning: interface(component:{}/interface:{}) is already registered.'.format(
                 component, interface))
 
-    def execute_interface(self, component, interface, *arguments):
+    @staticmethod
+    def execute_interface(component, interface, *arguments):
         interface = System.interface_dictlist.get_datum(
             [{'key': 'component', 'value': component}, {'key': 'interface', 'value': interface}])
 
@@ -56,27 +59,32 @@ class System:
             component, interface))
         return None
 
-    def register_component(self, name, constructor):
+    @staticmethod
+    def register_component(name, constructor):
         if System.component_dictlist.get_datum('name', name) is None:
-            System.component_dictlist.append({'name': name, 'constructor': constructor, 'system': self})
+            System.component_dictlist.append({'name': name, 'constructor': constructor,
+                                              'handler': None, 'init': False})
         else:
             print('[theo.framework.System] warning: component({}) is already registered.')
 
-    def startup_components(self):
-        filter = {'key': 'system', 'value': self}
-
+    @staticmethod
+    def startup_components():
         componets = []
-        for component in System.component_dictlist.get_data([filter]):
+        for component in System.component_dictlist.get_data():
             componets.append(component['name'])
-            component['handler'] = component['constructor'](component['name'])
 
-        for component in System.component_dictlist.get_data([filter]):
-            component['handler'].check_connected(componets)
+            if component['handler'] is None:
+                component['handler'] = component['constructor'](component['name'])
 
-        for component in System.component_dictlist.get_data([filter]):
-            component['handler'].initial()
+        for component in System.component_dictlist.get_data():
+            if not component['init']:
+                component['handler'].check_connected(componets)
+                component['handler'].initial()
 
-    def start_prompt(self):
+                component['init'] = True
+
+    @staticmethod
+    def start_prompt():
         if not System.is_prompt_started:
             system_queue = queue.Queue()
             prompt_queue = queue.Queue()
@@ -98,7 +106,7 @@ class System:
 
                 elif len(messages) >= 2:
                     print('[System] execute interface({})'.format(messages))
-                    prompt_queue.put(self.execute_interface(messages[0], messages[1], *messages[2:]))
+                    prompt_queue.put(System.execute_interface(messages[0], messages[1], *messages[2:]))
 
                 else:
                     # print('[System] invalid command({})'.format(messages))

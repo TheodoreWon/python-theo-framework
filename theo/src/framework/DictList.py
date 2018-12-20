@@ -22,7 +22,7 @@ class DictList:
 
     Methods:
         dictlist = DictList(key=None)
-        print()
+        print(log=None)
 
         length = count() : getting the count value how many dictionaries are stored.
         datum = get_datum(value) : getting the dictionary datum what is matched with the stored key and argument value.
@@ -74,19 +74,36 @@ class DictList:
 
         self.walkers = list()
 
-    def print(self):
+    def print(self, log=None):
         self.sort_data()
 
-        print('DictList(num:{}/key:{}) walkers({})'.format(len(self.data), self.key, self.walkers))
-        if len(self.data) <= 6:
-            for index, datum in enumerate(self.data):
-                print('{} {}'.format(index, datum))
+        if log is not None:
+            from theo.src.framework.Log import Log
+            if not isinstance(log, Log):
+                raise AssertionError('log(type:{}) should be theo.framework.Log.'.format(type(log)))
+
+            log.print('info', 'DictList(num:{}/key:{}) walkers({})'.format(len(self.data), self.key, self.walkers))
+            if len(self.data) <= 6:
+                for index, datum in enumerate(self.data):
+                    log.print('info', '{} {}'.format(index, datum))
+            else:
+                for index in [0, 1, 2]:
+                    log.print('info', '{} {}'.format(index, self.data[index]))
+                log.print('info', '...')
+                for index in [-3, -2, -1]:
+                    log.print('info', '{} {}'.format(len(self.data) + index, self.data[index]))
+
         else:
-            for index in [0, 1, 2]:
-                print('{} {}'.format(index, self.data[index]))
-            print('...')
-            for index in [-3, -2, -1]:
-                print('{} {}'.format(len(self.data) + index, self.data[index]))
+            print('DictList(num:{}/key:{}) walkers({})'.format(len(self.data), self.key, self.walkers))
+            if len(self.data) <= 6:
+                for index, datum in enumerate(self.data):
+                    print('{} {}'.format(index, datum))
+            else:
+                for index in [0, 1, 2]:
+                    print('{} {}'.format(index, self.data[index]))
+                print('...')
+                for index in [-3, -2, -1]:
+                    print('{} {}'.format(len(self.data) + index, self.data[index]))
 
     def count(self):
         return len(self.data)

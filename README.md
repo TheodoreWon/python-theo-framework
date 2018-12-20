@@ -1,5 +1,3 @@
-> Please do not use this framework before version 1.0.0 (official release)
-
 # theo-framework
 
 It is the framework what makes building a project easy.
@@ -11,27 +9,18 @@ System and Component make building a system easy.
 I am likely waiting a any kind of contribution.
 
 
-# How to use this framework
+# How to use
 
-To install the framework : 'pip install theo-framework'  
-To import : 'from theo.framework import DictList, Log, System, Component'
+Install the framework  
+> pip install theo-framework
 
-To get a help : 'print(DictList.__doc__)'  
-To get a help : 'print(Log.__doc__)'  
-To get a help : 'print(System.__doc__)'  
-To get a help : 'print(Component.__doc__)'
+Print docstrings
+> from theo.framework import DictList, Log, System, Component  
+> print(DictList.&#95;&#95;doc&#95;&#95;)  
+> print(Log.&#95;&#95;doc&#95;&#95;)  
+> print(System.&#95;&#95;doc&#95;&#95;)  
+> print(Component.&#95;&#95;doc&#95;&#95;)  
 
-
-# Contributing
-
-If you have any request, please new issue and give me an idea.
-
-
-# Release
-
-1. python setup.py bdist_wheel
-2. cd dist
-3. twine upload xxx.whl
 
 # Authors
 
@@ -45,5 +34,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 # Links
 
-Github : https://github.com/TheodoreWon/python-theo-framework
+Github : https://github.com/TheodoreWon/python-theo-framework  
 PyPI : https://pypi.org/project/theo-framework/

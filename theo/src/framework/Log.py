@@ -15,16 +15,25 @@ class Log:
     By the configuration, printing and storing work by level comparison.
     If value of argument level is higher than value of name's level, the print function works.
 
+    The default levels are critical(100), info(50), debug(30), none(0).
+    And the default configuration is Print(info), Store(debug).
+    If the configuration is not changed, the log what is set a level higher than info is printed and debug is stored.
+
+    Initially, the storing does not work.
+    To store a log, calling configure(store_enabled=True) is needed before construct Log class.
+
     Methods:
         configure(print_enabled=None, store_enabled=None,
-            config_directory=None, log_directory=None,
-            over_time_log_clear_enabled=None, days_over_time=None)
+                  config_directory=None, log_directory=None,
+                  over_time_log_clear_enabled=None, days_over_time=None)
         log = Log(name)
         print(level, *messages)
 
     Example:
+        from theo.framework import Log
+
         log = Log('name')
-        log.print('info', 'Hello, pythonLibrary.')
+        log.print('info', 'Hello, theo.framework!')
     """
 
     is_started = False
@@ -56,8 +65,9 @@ class Log:
     days_over_time = 2
 
     @staticmethod
-    def configure(print_enabled=None, store_enabled=None, config_directory=None, log_directory=None,
-            over_time_log_clear_enabled=None, days_over_time=None):
+    def configure(print_enabled=None, store_enabled=None,
+                  config_directory=None, log_directory=None,
+                  over_time_log_clear_enabled=None, days_over_time=None):
         if not Log.is_started:
             if print_enabled is not None:
                 if not isinstance(print_enabled, bool):
@@ -91,10 +101,18 @@ class Log:
         else:
             print('[theo.framework.Log] warning: config should be configured before using.')
 
-        print('[theo.framework.Log] configuration is below')
-        print('= enabled(print:{}/store:{})'.format(Log.print_enabled, Log.store_enabled))
-        print('= file location(config:{}/log:{})'.format(Log.config_directory, Log.log_directory))
-        print('= over_time_log_clear(enabled:{}/days:{})'.format(Log.over_time_log_clear_enabled, Log.days_over_time))
+    @staticmethod
+    def print_config():
+        print('[theo.framework.Log] print configuration')
+        print('- Enabled')
+        print('    Print : {}'.format(Log.print_enabled))
+        print('    Store : {}'.format(Log.store_enabled))
+        print('- Directories')
+        print('    Config : {}'.format(Log.config_directory))
+        print('    Log    : {}'.format(Log.log_directory))
+        print('- Options')
+        print('    Over time log clear : Enabled({}) Days({})'.format(Log.over_time_log_clear_enabled,
+                                                                      Log.days_over_time))
 
     def __init__(self, name):
         if not isinstance(name, str):
@@ -120,6 +138,8 @@ class Log:
     @staticmethod
     def initial():
         if not Log.is_started:
+            Log.print_config()
+
             # configuration files
             if not os.path.exists(Log.config_directory):
                 os.makedirs(Log.config_directory)
@@ -175,7 +195,7 @@ class Log:
             Log.is_started = True
 
     @staticmethod
-    def get_level_config( name):
+    def get_level_config(name):
         name_config = Log.name_config_dictlist.get_datum(name)
 
         if name_config is None:
