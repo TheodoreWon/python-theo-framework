@@ -12,7 +12,7 @@ class Component(metaclass=abc.ABCMeta):
         If the component has a dependency with other components,
             define set_related_components and append related_components at self.related_components.
         Define the function, initial and add calling system.register_interface and initial sequence for it.
-        Add system.register_component('ComponentName', ComponentName) at program main.
+        Add System.register_component(ComponentName) at program main.
         When main call system.startup_components(), the component will be initialized.
 
     Example:
@@ -26,18 +26,17 @@ class Component(metaclass=abc.ABCMeta):
             def initial(self):
                 self.log.print('info', 'initial (related:{})'.format(self.related_components))
 
-                # System.register_interface(self.name, 'interface', [0], None)
+                # System.register_interface('ComponentName', 'interface', [0], None)
     """
 
-    def __init__(self, name):
-        if not isinstance(name, str):
-            raise AssertionError('name(type:{}) should be str.'.format(type(name)))
-
-        self.name = name
-        self.log = Log(self.name)
+    def __init__(self):
+        self.log = Log(type(self).__name__)
 
         self.related_components = list()
         self.set_related_components()
+
+    def __name__(self):
+        return type(self).__name__
 
     def set_related_components(self):
         self.related_components.clear()

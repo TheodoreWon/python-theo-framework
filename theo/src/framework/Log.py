@@ -72,21 +72,24 @@ class Log:
             if print_enabled is not None:
                 if not isinstance(print_enabled, bool):
                     raise AssertionError(
-                        '[theo.framework.Log] print_enabled(type:{}) should be bool.'.format(type(print_enabled)))
+                        '[theo.framework.Log] error: print_enabled(type:{}) should be bool.'.format(
+                            type(print_enabled)))
 
                 Log.print_enabled = print_enabled
 
             if store_enabled is not None:
                 if not isinstance(store_enabled, bool):
                     raise AssertionError(
-                        '[theo.framework.Log] store_enabled(type:{}) should be bool.'.format(type(store_enabled)))
+                        '[theo.framework.Log] error: store_enabled(type:{}) should be bool.'.format(
+                            type(store_enabled)))
 
                 Log.store_enabled = store_enabled
 
             if config_directory is not None:
                 if not isinstance(config_directory, str):
                     raise AssertionError(
-                        '[theo.framework.Log] config_directory(type:{}) should be str.'.format(type(config_directory)))
+                        '[theo.framework.Log] error: config_directory(type:{}) should be str.'.format(
+                            type(config_directory)))
 
                 Log.config_directory = config_directory
                 Log.name_config_path = os.path.join(Log.config_directory, 'name_config.json')
@@ -95,7 +98,7 @@ class Log:
             if log_directory is not None:
                 if not isinstance(log_directory, str):
                     raise AssertionError(
-                        '[theo.framework.Log] log_directory(type:{}) should be str.'.format(type(log_directory)))
+                        '[theo.framework.Log] error: log_directory(type:{}) should be str.'.format(type(log_directory)))
 
                 Log.log_directory = log_directory
         else:
@@ -116,7 +119,7 @@ class Log:
 
     def __init__(self, name):
         if not isinstance(name, str):
-            raise AssertionError('name(type:{}) should be str.'.format(type(name)))
+            raise AssertionError('[theo.framework.Log] error: name(type:{}) should be str.'.format(type(name)))
 
         Log.initial()
 
@@ -174,8 +177,8 @@ class Log:
                 if Log.over_time_log_clear_enabled:
                     for (path, directories, files) in os.walk(Log.log_directory):
                         for directory in directories:
-                            if Log.days_over_time \
-                                    <= (datetime.datetime.now() - datetime.datetime.strptime(directory, '%Y-%m-%d')).days:
+                            if Log.days_over_time <= (datetime.datetime.now()
+                                                      - datetime.datetime.strptime(directory, '%Y-%m-%d')).days:
                                 shutil.rmtree(os.path.join(Log.log_directory, directory))
 
                         break

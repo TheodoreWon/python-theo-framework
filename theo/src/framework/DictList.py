@@ -80,7 +80,8 @@ class DictList:
         if log is not None:
             from theo.src.framework.Log import Log
             if not isinstance(log, Log):
-                raise AssertionError('log(type:{}) should be theo.framework.Log.'.format(type(log)))
+                raise AssertionError(
+                    '[theo.framework.DictList] error: log(type:{}) should be theo.framework.Log.'.format(type(log)))
 
             log.print('info', 'DictList(num:{}/key:{}) walkers({})'.format(len(self.data), self.key, self.walkers))
             if len(self.data) <= 6:
@@ -421,25 +422,29 @@ class DictList:
     @staticmethod
     def validate_datum(key, datum):
         if not isinstance(datum, dict):
-            raise AssertionError('datum(type:{}) should be dict.'.format(type(datum)))
+            raise AssertionError('[theo.framework.DictList] error: datum(type:{}) should be dict.'.format(type(datum)))
 
         if key is not None and key not in datum:
-            raise AssertionError('datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), key))
+            raise AssertionError(
+                '[theo.framework.DictList] error: datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), key))
 
     @staticmethod
     def validate_data(key, data):
         if not isinstance(data, list):
-            raise AssertionError('data(type:{}) should be list.'.format(type(data)))
+            raise AssertionError('[theo.framework.DictList] error: data(type:{}) should be list.'.format(type(data)))
 
         if key is not None:
             for datum in data:
                 if key not in datum:
-                    raise AssertionError('datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), key))
+                    raise AssertionError(
+                        '[theo.framework.DictList] error: datum(keys:{}) does not have the key({}).'.format(
+                            list(datum.keys()), key))
 
     @staticmethod
     def validate_dictlist(key, dictlist):
         if not isinstance(dict, DictList):
-            raise AssertionError('dictlist(type:{}) should be DictList.'.format(type(dictlist)))
+            raise AssertionError(
+                '[theo.framework.DictList] error: dictlist(type:{}) should be DictList.'.format(type(dictlist)))
 
         DictList.validate_data(key, dictlist.get_data())
 
@@ -447,16 +452,20 @@ class DictList:
     def validate_filters(filters):
         if filters is not None:
             if not isinstance(filters, list):
-                raise AssertionError('filters(type:{}) should be list.'.format(type(filters)))
+                raise AssertionError(
+                    '[theo.framework.DictList] error: filters(type:{}) should be list.'.format(type(filters)))
 
             for filter in filters:
                 if not isinstance(filter, dict):
-                    raise AssertionError('filter(type:{}) should be dict.'.format(type(filter)))
+                    raise AssertionError(
+                        '[theo.framework.DictList] error: filter(type:{}) should be dict.'.format(type(filter)))
 
                 if not ('key' in filter and 'value' in filter):
-                    raise AssertionError('filter(keys:{}) does not have key or value.'.format(list(filter.keys())))
+                    raise AssertionError(
+                        '[theo.framework.DictList] error: filter(keys:{}) does not have key or value.'.format(
+                            list(filter.keys())))
 
     @staticmethod
     def validate_file(file):
         if not isinstance(file, str):
-            raise AssertionError('file(type:{}) should be str.'.format(type(file)))
+            raise AssertionError('[theo.framework.DictList] error: file(type:{}) should be str.'.format(type(file)))

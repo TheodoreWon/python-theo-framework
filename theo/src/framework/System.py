@@ -17,7 +17,7 @@ class System:
         register_interface(component, interface, argument_numbers, func) : registering interface
         execute_interface(component, interface, *arguments) : executing interface
 
-        register_component(name, constructor)
+        register_component(constructor)
         startup_components()
 
         start_prompt()
@@ -33,7 +33,7 @@ class System:
     """
 
     interface_dictlist = DictList()
-    component_dictlist = DictList('name')
+    component_dictlist = DictList()
 
     is_prompt_started = False
 
@@ -60,21 +60,21 @@ class System:
         return None
 
     @staticmethod
-    def register_component(name, constructor):
-        if System.component_dictlist.get_datum('name', name) is None:
-            System.component_dictlist.append({'name': name, 'constructor': constructor,
-                                              'handler': None, 'init': False})
+    def register_component(constructor):
+        if System.component_dictlist.get_datum('constructor', constructor) is None:
+            System.component_dictlist.append({'constructor': constructor, 'handler': None, 'init': False})
         else:
-            print('[theo.framework.System] warning: component({}) is already registered.')
+            print('[theo.framework.System] warning: component({}) is already registered.'.format(
+                constructor.__name__))
 
     @staticmethod
     def startup_components():
         componets = []
         for component in System.component_dictlist.get_data():
-            componets.append(component['name'])
+            componets.append(component['constructor'].__name__)
 
             if component['handler'] is None:
-                component['handler'] = component['constructor'](component['name'])
+                component['handler'] = component['constructor']()
 
         for component in System.component_dictlist.get_data():
             if not component['init']:
@@ -105,7 +105,7 @@ class System:
                     prompt_queue.put(System.interface_dictlist.get_data())
 
                 elif len(messages) >= 2:
-                    print('[System] execute interface({})'.format(messages))
+                    print('[theo.framework.System] execute interface({})'.format(messages))
                     prompt_queue.put(System.execute_interface(messages[0], messages[1], *messages[2:]))
 
                 else:
@@ -129,10 +129,10 @@ class Prompt(cmd.Cmd):
 
     def precmd(self, inputs):
         if self.system_queue is None:
-            raise AssertionError('system_queue is not set.')
+            raise AssertionError('[theo.framework.System] error: system_queue is not set.')
 
         if self.prompt_queue is None:
-            raise AssertionError('prompt_queue is not set.')
+            raise AssertionError('[theo.framework.System] error: prompt_queue is not set.')
 
         inputs = inputs.split()
         if len(inputs) < 1:
