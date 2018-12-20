@@ -426,7 +426,8 @@ class DictList:
 
         if key is not None and key not in datum:
             raise AssertionError(
-                '[theo.framework.DictList] error: datum(keys:{}) does not have the key({}).'.format(list(datum.keys()), key))
+                '[theo.framework.DictList] error: datum(keys:{}) does not have the key({}).'.format(
+                    list(datum.keys()), key))
 
     @staticmethod
     def validate_data(key, data):

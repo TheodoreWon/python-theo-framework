@@ -1,0 +1,64 @@
+@startuml System_basic_sequence
+hide footbox
+
+participant main
+activate main
+
+create participant System
+main -> System: from theo.framework import System
+
+main -> System: System.register_component(constructor)
+note right: register components continuously
+main -> System: System.startup_components()
+activate System
+
+create collections Component
+System -> Component: Component()
+note right: new components continuously
+
+
+System -> Component: initial()
+note right
+    call initial continuously
+    Component should have this function.
+end note
+
+activate Component
+Component -> System: register_interface(component, interface)
+deactivate Component
+note left
+    register interfaces continuously
+end note
+
+deactivate System
+
+main -> System: System.start_interface_prompt()
+activate System
+
+create control Prompt.cmdloop
+System -> Prompt.cmdloop: new Prompt() & cmdloop()
+
+loop
+    actor admin
+    admin -> Prompt.cmdloop: component interface arguments
+    activate Prompt.cmdloop
+
+    Prompt.cmdloop -->> System: execute_interface(component, interface, arguments)
+    System -> Component: interface_func()
+    activate Component
+    Component ->> System: result
+    deactivate Component
+
+    System -->> Prompt.cmdloop: result
+    deactivate Prompt.cmdloop
+    end
+
+admin -> Prompt.cmdloop: exit
+activate Prompt.cmdloop
+Prompt.cmdloop -->> System: exit
+deactivate Prompt.cmdloop
+
+deactivate System
+deactivate main
+
+@enduml
