@@ -2,7 +2,8 @@ import setuptools
 
 setuptools.setup(
     name='theo-framework',
-    version='0.2.0',
+    version='0.3.0',
+    install_requires=['setuptools', 'wheel', 'twine'],
     url='https://github.com/TheodoreWon/python-theo-framework',
     license='MIT',
     author='Theodore Won',
@@ -15,6 +16,7 @@ setuptools.setup(
 )
 
 '''
+NOTE: How to make a package and release the software
 1. python setup.py bdist_wheel
 2. cd dist
 3. twine upload xxx.whl

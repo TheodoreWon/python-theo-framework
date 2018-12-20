@@ -18,18 +18,28 @@ class System:
         execute_interface(component, interface, *arguments) : executing interface
 
         register_component(constructor)
-        startup_components()
+        components = get_components() : getting the registered components
+        startup_components() : creating registered components and calling the initial function of the components
 
-        start_prompt()
+        start_interface_prompt()
 
-    Examples:
-        from theo.framework import System
+    Example:
+        from theo.framework import System, Component
 
-        def set_theo_friend(name):
-            print('Theo has a friend, {}'.format(name))
 
-        System.register_interface('theo', 'set_theo_friend', [1], set_theo_friend)
-        System.execute_interface('theo', 'set_theo_friend', 'Grace')
+        class TheoFriend(Component):
+            def initial(self):
+                self.log.print('info', 'initial')
+                System.register_interface('TheoFriend', 'print_theo_friend', [1], self.print_theo_friend)
+
+            def print_theo_friend(self, name):
+                self.log.print('info', 'Theo has a friend, {}'.format(name))
+
+
+        System.register_component(TheoFriend)
+        System.startup_components()
+
+        System.execute_interface('TheoFriend', 'print_theo_friend', 'Grace')
     """
 
     interface_dictlist = DictList()
@@ -68,23 +78,25 @@ class System:
                 constructor.__name__))
 
     @staticmethod
-    def startup_components():
-        componets = []
+    def get_components():
+        components = list()
         for component in System.component_dictlist.get_data():
-            componets.append(component['constructor'].__name__)
+            components.append(component['constructor'].__name__)
 
+        return components
+
+    @staticmethod
+    def startup_components():
+        for component in System.component_dictlist.get_data():
             if component['handler'] is None:
                 component['handler'] = component['constructor']()
 
-        for component in System.component_dictlist.get_data():
             if not component['init']:
-                component['handler'].check_connected(componets)
                 component['handler'].initial()
-
                 component['init'] = True
 
     @staticmethod
-    def start_prompt():
+    def start_interface_prompt():
         if not System.is_prompt_started:
             system_queue = queue.Queue()
             prompt_queue = queue.Queue()
@@ -129,10 +141,10 @@ class Prompt(cmd.Cmd):
 
     def precmd(self, inputs):
         if self.system_queue is None:
-            raise AssertionError('[theo.framework.System] error: system_queue is not set.')
+            raise AssertionError('[theo.framework.Prompt] error: system_queue is not set.')
 
         if self.prompt_queue is None:
-            raise AssertionError('[theo.framework.System] error: prompt_queue is not set.')
+            raise AssertionError('[theo.framework.Prompt] error: prompt_queue is not set.')
 
         inputs = inputs.split()
         if len(inputs) < 1:

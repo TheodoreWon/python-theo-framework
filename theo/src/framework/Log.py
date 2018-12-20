@@ -177,8 +177,8 @@ class Log:
                 if Log.over_time_log_clear_enabled:
                     for (path, directories, files) in os.walk(Log.log_directory):
                         for directory in directories:
-                            if Log.days_over_time <= (datetime.datetime.now()
-                                                      - datetime.datetime.strptime(directory, '%Y-%m-%d')).days:
+                            if Log.days_over_time <= \
+                               (datetime.datetime.now() - datetime.datetime.strptime(directory, '%Y-%m-%d')).days:
                                 shutil.rmtree(os.path.join(Log.log_directory, directory))
 
                         break

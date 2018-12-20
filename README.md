@@ -19,7 +19,7 @@ Print docstrings
 > print(DictList.&#95;&#95;doc&#95;&#95;)  
 > print(Log.&#95;&#95;doc&#95;&#95;)  
 > print(System.&#95;&#95;doc&#95;&#95;)  
-> print(Component.&#95;&#95;doc&#95;&#95;)  
+> print(Component.&#95;&#95;doc&#95;&#95;)
 
 
 # Authors
@@ -35,4 +35,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 # Links
 
 Github : https://github.com/TheodoreWon/python-theo-framework  
-PyPI : https://pypi.org/project/theo-framework/
+PyPI : https://pypi.org/project/theo-framework
