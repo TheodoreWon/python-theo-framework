@@ -293,22 +293,50 @@ class DictList:
 
             file_handler.close()
 
-    """
-    TODO: functionality of mongodb
     def import_mongodb(self, database, collection):
-        self.validate_mongodb(database, collection)
+        # self.validate_mongodb(database, collection)
 
-        # data = system.execute_interface('MongoDBCtrl', 'load_data', database, collection)
-        if len(data):
-            self.data.extend(data)
-            self.sorted = False
+        try:
+            from theo.framework import System
+            from theo.database import MongoDB
+
+            if 'MongoDBCtrl' in System.get_components():
+                print('a')
+                data = System.execute_interface('MongoDBCtrl', 'load_data', database, collection)
+                if len(data):
+                    self.data.extend(data)
+                    self.sorted = False
+            else:
+                print('b')
+                mongodb = MongoDB()
+                data = mongodb.load_data(database, collection)
+                if len(data):
+                    self.data.extend(data)
+                    self.sorted = False
+
+                del mongodb
+
+        except (ModuleNotFoundError, ImportError):
+            raise AssertionError('[theo.framework.DictList] error: theo-database should be installed to use MongoDB.')
 
     def export_mongodb(self, database, collection):
-        self.validate_mongodb(database, collection)
-        self.sort_data()
+        # self.validate_mongodb(database, collection)
 
-        # system.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
-    """
+        try:
+            from theo.framework import System
+            from theo.database import MongoDB
+
+            self.sort_data()
+
+            if 'MongoDBCtrl' in System.get_components():
+                System.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
+            else:
+                mongodb = MongoDB()
+                mongodb.save_data(database, collection, self.data, self.key)
+                del mongodb
+
+        except (ModuleNotFoundError, ImportError):
+            raise AssertionError('[theo.framework.DictList] error: theo-database should be installed to use MongoDB.')
 
     """
     Internal sorting, searching functions
@@ -418,7 +446,6 @@ class DictList:
     """
     Internal validation functions
     """
-
     @staticmethod
     def validate_datum(key, datum):
         if not isinstance(datum, dict):

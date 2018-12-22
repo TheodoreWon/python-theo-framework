@@ -32,6 +32,7 @@ class Log:
     Example:
         from theo.framework import Log
 
+        Log.configure(print_enabled=True, store_enabled=True, over_time_log_clear_enabled=True)
         log = Log('name')
         log.print('info', 'Hello, theo.framework!')
     """
