@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='theo-framework',
-    version='0.4.0',
+    version='0.4.1',
     install_requires=['theo-database'],
     url='https://github.com/TheodoreWon/python-theo-framework',
     license='MIT',
@@ -10,8 +10,9 @@ setuptools.setup(
     author_email='taehee.won@gmail.com',
     description='theo-framework',
     packages=['theo', 'theo.src.framework'],
-    long_description='GitHub : https://github.com/TheodoreWon/python-theo-framework',
-    # long_description=open('README.md').read(),
+    # long_description='GitHub : https://github.com/TheodoreWon/python-theo-framework',
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     zip_safe=False,
 )
 

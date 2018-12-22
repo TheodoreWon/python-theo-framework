@@ -294,10 +294,8 @@ class DictList:
             file_handler.close()
 
     def import_mongodb(self, database, collection):
-        # self.validate_mongodb(database, collection)
-
         try:
-            from theo.framework import System
+            from theo.src.framework.System import System
             from theo.database import MongoDB
 
             if 'MongoDBCtrl' in System.get_components():
@@ -320,10 +318,8 @@ class DictList:
             raise AssertionError('[theo.framework.DictList] error: theo-database should be installed to use MongoDB.')
 
     def export_mongodb(self, database, collection):
-        # self.validate_mongodb(database, collection)
-
         try:
-            from theo.framework import System
+            from theo.src.framework.System import System
             from theo.database import MongoDB
 
             self.sort_data()
