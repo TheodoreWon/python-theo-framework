@@ -9,25 +9,25 @@ System and Component make building a system easy.
 I am likely waiting a any kind of contribution.
 
 
+# Theo series
+
+Framework : pip install theo-framework, https://github.com/TheodoreWon/python-theo-framework  
+Database : pip install theo-database, https://github.com/TheodoreWon/python-theo-database  
+Message : pip install theo-message, https://github.com/TheodoreWon/python-theo-message  
+Trade : pip install theo-trade, https://github.com/TheodoreWon/python-theo-trade
+
+
 # How to use
 
 Install the framework  
 > pip install theo-framework
 
-Print docstrings
+Print docstrings  
 > from theo.framework import DictList, Log, System, Component  
 > print(DictList.&#95;&#95;doc&#95;&#95;)  
 > print(Log.&#95;&#95;doc&#95;&#95;)  
 > print(System.&#95;&#95;doc&#95;&#95;)  
 > print(Component.&#95;&#95;doc&#95;&#95;)
-
-
-# Theo series
-
-Framework : https://github.com/TheodoreWon/python-theo-framework / pip install theo-framework  
-Database : https://github.com/TheodoreWon/python-theo-database / pip install theo-database  
-Message : https://github.com/TheodoreWon/python-theo-message / pip install theo-message  
-Trade : https://github.com/TheodoreWon/python-theo-trade / pip install theo-trade
 
 
 # Authors
@@ -52,4 +52,4 @@ I would like to call 'Theo Versioning'.
   - But, to notify new feature, New feature makes MAJOR version up.  
   - Before official version release (1.0.0), MAJOR is kept 0 and MINOR version is used.  
 - MINOR version is up when the API is added. (New functionality)  
-- PATCH version is lifted when bug is fixed, test code is uploaded, comment or document is updated.  
+- PATCH version is lifted when bug is fixed, test code is uploaded, comment or document or log is updated.  

@@ -47,8 +47,8 @@ class DictList:
         export_csv(file) : exporting the data what is stored list to csv file
             file (str): the file path (ex. os.path.join(os.getcwd(), 'files', 'data.json'))
 
-        TODO: import_mongodb(database, collection)
-        TODO: export_mongodb(database, collection)
+        import_mongodb(database, collection) : importing the data from mongodb
+        export_mongodb(database, collection) : exporting the datawhat is stored list to mongodb
 
         TODO: walker_handler = plug_in_walker(walker, walker_delay=False, insert=False)
         TODO: plug_out_walker(walker_handler)
