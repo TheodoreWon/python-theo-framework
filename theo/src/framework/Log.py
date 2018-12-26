@@ -103,7 +103,8 @@ class Log:
 
                 Log.log_directory = log_directory
         else:
-            print('[theo.framework.Log] warning: config should be configured before using.')
+            raise AssertionError('[theo.framework.Log] error: config should be configured before using.')
+            # print('[theo.framework.Log] warning: config should be configured before using.')
 
     @staticmethod
     def print_config():

@@ -18,6 +18,7 @@ class System:
         execute_interface(component, interface, *arguments) : executing interface
 
         register_component(constructor)
+        register_components(constructors)
         components = get_components() : getting the registered components
         startup_components() : creating registered components and calling the initial function of the components
 
@@ -76,6 +77,15 @@ class System:
         else:
             print('[theo.framework.System] warning: component({}) is already registered.'.format(
                 constructor.__name__))
+
+    @staticmethod
+    def register_components(constructors):
+        for constructor in constructors:
+            if System.component_dictlist.get_datum('constructor', constructor) is None:
+                System.component_dictlist.append({'constructor': constructor, 'handler': None, 'init': False})
+            else:
+                print('[theo.framework.System] warning: component({}) is already registered.'.format(
+                    constructor.__name__))
 
     @staticmethod
     def get_components():
