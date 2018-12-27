@@ -113,6 +113,7 @@ class DictList:
         # get_datum(filters)
         if attr2 is None and isinstance(attr1, list):
             self.validate_filters(attr1)
+            self.sort_data()
 
             filters = attr1
             for datum in self.data:
@@ -143,6 +144,7 @@ class DictList:
             if self.key is not None and self.key == key:
                 return copy.copy(self.binary_search_datum(value))
             else:
+                self.sort_data()
                 for datum in self.data:
                     if key in datum and datum[key] == value:
                         return copy.copy(datum)
@@ -151,6 +153,7 @@ class DictList:
 
     def get_data(self, filters=None):
         self.validate_filters(filters)
+        self.sort_data()
 
         if filters is None:
             return copy.copy(self.data)
@@ -168,6 +171,7 @@ class DictList:
 
     def get_values(self, key, overlap=False, filters=None):
         self.validate_filters(filters)
+        self.sort_data()
 
         if filters is None:
             filters = list()
