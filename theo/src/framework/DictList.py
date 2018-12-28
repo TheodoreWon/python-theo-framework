@@ -50,8 +50,8 @@ class DictList:
         import_mongodb(database, collection) : importing the data from mongodb
         export_mongodb(database, collection) : exporting the datawhat is stored list to mongodb
 
-        TODO: walker_handler = plug_in_walker(walker, walker_delay=False, insert=False)
-        TODO: plug_out_walker(walker_handler)
+        walker_handler = plug_in_walker(walker, walker_delay=False, insert=False)
+        plug_out_walker(walker_handler)
 
     Example:
         contract_dictlist = DictList(key='name')
@@ -123,15 +123,20 @@ class DictList:
                 else:
                     return copy.copy(datum)
 
-            return None
-
         # get_datum(value)
         elif attr2 is None:
             if self.key is None:
                 raise AssertionError('get_datum(value) needs key in DictList.')
 
             value = attr1
-            return copy.copy(self.binary_search_datum(value))
+
+            if 0 == len(self.walkers):
+                datum = self.binary_search_datum(value)
+            else:
+                datum = self.sequence_search_datum(self.key, value)
+
+            if datum is not None:
+                return copy.copy(datum)
 
         # get_datum(key, value)
         else:
@@ -141,15 +146,15 @@ class DictList:
             key = attr1
             value = attr2
 
-            if self.key is not None and self.key == key:
-                return copy.copy(self.binary_search_datum(value))
+            if self.key is not None and self.key == key and 0 == len(self.walkers):
+                datum = self.binary_search_datum(value)
             else:
-                self.sort_data()
-                for datum in self.data:
-                    if key in datum and datum[key] == value:
-                        return copy.copy(datum)
+                datum = self.sequence_search_datum(key, value)
 
-                return None
+            if datum is not None:
+                return copy.copy(datum)
+
+        return None
 
     def get_data(self, filters=None):
         self.validate_filters(filters)
@@ -197,12 +202,14 @@ class DictList:
 
         self.data.append(datum)
         self.sorted = False
+        self.run_walker()
 
     def insert(self, datum):
         self.validate_datum(self.key, datum)
 
         self.data.insert(0, datum)
         self.sorted = False
+        self.run_walker()
 
     def extend(self, dictlist):
         self.validate_dictlist(self.key, dictlist)
@@ -210,6 +217,7 @@ class DictList:
         if len(dictlist.count()):
             self.data.extend(dictlist.get_data())
             self.sorted = False
+            self.run_walker()
 
     def extend_data(self, data):
         self.validate_data(self.key, data)
@@ -217,6 +225,7 @@ class DictList:
         if len(data):
             self.data.extend(data)
             self.sorted = False
+            self.run_walker()
 
     def pop_datum(self, datum):
         if datum in self.data:
@@ -242,6 +251,7 @@ class DictList:
             file_handler.close()
 
             self.sorted = False
+            self.run_walker()
 
     def export_json(self, file):
         self.validate_file(file)
@@ -275,6 +285,7 @@ class DictList:
             file_handler.close()
 
             self.sorted = False
+            self.run_walker()
 
     def export_csv(self, file):
         self.validate_file(file)
@@ -307,12 +318,14 @@ class DictList:
                 if len(data):
                     self.data.extend(data)
                     self.sorted = False
+                    self.run_walker()
             else:
                 mongodb = MongoDB()
                 data = mongodb.load_data(database, collection)
                 if len(data):
                     self.data.extend(data)
                     self.sorted = False
+                    self.run_walker()
 
                 del mongodb
 
@@ -335,6 +348,37 @@ class DictList:
 
         except (ModuleNotFoundError, ImportError):
             raise AssertionError('[theo.framework.DictList] error: theo-database should be installed to use MongoDB.')
+
+    def plug_in_walker(self, walker, walker_delay=False, insert=False):
+        handler = {'index': 0, 'walker': walker}
+
+        if insert:
+            self.walkers.insert(0, handler)
+        else:
+            self.walkers.append(handler)
+
+        if not walker_delay:
+            self.run_walker()
+
+        return handler
+
+    def plug_out_walker(self, handler):
+        self.walkers.remove(handler)
+
+    def run_walker(self):
+        if 0 != len(self.walkers):
+            index = self.count()
+            for walker in self.walkers:
+                if walker['index'] < index:
+                    index = walker['index']
+
+            while index != self.count():
+                for walker in self.walkers:
+                    if walker['index'] == index:
+                        walker['walker'](self.data_list[index])
+                        walker['index'] = walker['index'] + 1
+
+                index = index + 1
 
     """
     Internal sorting, searching functions
@@ -363,7 +407,7 @@ class DictList:
             But, the recursive quick sorting's performance is better than the other.
     """
     def sort_data(self):
-        if self.key is not None and not self.sorted:
+        if self.key is not None and not self.sorted and 0 == len(self.walkers):
             if self.is_data_ascending_order(self.data, self.key):
                 self.sorted = True
             elif len(self.walkers):
@@ -438,6 +482,15 @@ class DictList:
                 start_index = index + 1
             else:
                 return self.data[index]
+
+        return None
+
+    def sequence_search_datum(self, key, value):
+        self.sort_data()
+
+        for datum in self.data:
+            if key in datum and datum[key] == value:
+                return datum
 
         return None
 
