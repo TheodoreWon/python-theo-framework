@@ -350,8 +350,9 @@ class DictList:
             raise AssertionError('[theo.framework.DictList] error: theo-database should be installed to use MongoDB.')
 
     def plug_in_walker(self, walker, walker_delay=False, insert=False):
-        handler = {'index': 0, 'walker': walker}
+        self.sort_data()
 
+        handler = {'index': 0, 'walker': walker}
         if insert:
             self.walkers.insert(0, handler)
         else:
