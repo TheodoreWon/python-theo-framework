@@ -375,7 +375,7 @@ class DictList:
             while index != self.count():
                 for walker in self.walkers:
                     if walker['index'] == index:
-                        walker['walker'](self.data_list[index])
+                        walker['walker'](self.data[index])
                         walker['index'] = walker['index'] + 1
 
                 index = index + 1
