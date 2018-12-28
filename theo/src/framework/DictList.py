@@ -303,13 +303,11 @@ class DictList:
             from theo.database import MongoDB
 
             if 'MongoDBCtrl' in System.get_components():
-                print('a')
                 data = System.execute_interface('MongoDBCtrl', 'load_data', database, collection)
                 if len(data):
                     self.data.extend(data)
                     self.sorted = False
             else:
-                print('b')
                 mongodb = MongoDB()
                 data = mongodb.load_data(database, collection)
                 if len(data):
