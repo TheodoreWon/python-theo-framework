@@ -22,8 +22,8 @@ class DictList:
 
     Methods:
         dictlist = DictList(key=None)
-        print(log=None)
 
+        print(log=None, print_all=False)
         length = count() : getting the count value how many dictionaries are stored.
         datum = get_datum(value) : getting the dictionary datum what is matched with the stored key and argument value.
         datum = get_datum(filters) : getting the datum what is matched with argument filters.
@@ -74,7 +74,7 @@ class DictList:
 
         self.walkers = list()
 
-    def print(self, log=None):
+    def print(self, log=None, print_all=False):
         self.sort_data()
 
         if log is not None:
@@ -83,8 +83,10 @@ class DictList:
                 raise AssertionError(
                     '[theo.framework.DictList] error: log(type:{}) should be theo.framework.Log.'.format(type(log)))
 
-            log.print('info', 'DictList(num:{}/key:{}) walkers({})'.format(len(self.data), self.key, self.walkers))
-            if len(self.data) <= 6:
+            log.print('info', 'DictList(num:{}/key:{}) walkers(num:{})'.format(
+                len(self.data), self.key, len(self.walkers)))
+
+            if print_all or len(self.data) <= 6:
                 for index, datum in enumerate(self.data):
                     log.print('info', '{} {}'.format(index, datum))
             else:
@@ -95,8 +97,9 @@ class DictList:
                     log.print('info', '{} {}'.format(len(self.data) + index, self.data[index]))
 
         else:
-            print('DictList(num:{}/key:{}) walkers({})'.format(len(self.data), self.key, self.walkers))
-            if len(self.data) <= 6:
+            print('DictList(num:{}/key:{}) walkers(num:{})'.format(len(self.data), self.key, len(self.walkers)))
+
+            if print_all or len(self.data) <= 6:
                 for index, datum in enumerate(self.data):
                     print('{} {}'.format(index, datum))
             else:
