@@ -25,10 +25,16 @@ class DictList:
 
         print(log=None, print_all=False)
         length = count() : getting the count value how many dictionaries are stored.
+
         datum = get_datum(value) : getting the dictionary datum what is matched with the stored key and argument value.
         datum = get_datum(filters) : getting the datum what is matched with argument filters.
         datum = get_datum(key, value) : getting the datum what is matched with argument key and argument value.
-        data = get_data(filters=None) : getting the data what is matched with arguments filters.
+
+        data = get_data() : getting the data what is stored
+        data = get_date(value) : getting the data what is matched with the stored key and argument value
+        data = get_date(filters) : getting the data what is matched with argument filters.
+        data = get_data(key, value) : getting the data what is matched with argument key and argument value.
+
         values = get_values(key, overlap=False, filters=None)
             filters (list): dictionary datum list. the filter has the key, 'key' and 'value'.
 
@@ -119,6 +125,7 @@ class DictList:
             self.sort_data()
 
             filters = attr1
+
             for datum in self.data:
                 for filter in filters:
                     if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
@@ -159,20 +166,58 @@ class DictList:
 
         return None
 
-    def get_data(self, filters=None):
-        self.validate_filters(filters)
-        self.sort_data()
-
-        if filters is None:
+    def get_data(self, attr1=None, attr2=None):
+        # get_data()
+        if attr1 is None and attr2 is None:
+            self.sort_data()
             return copy.copy(self.data)
 
-        else:
+        # get_data(filters)
+        if attr2 is None and isinstance(attr1, list):
+            self.validate_filters(attr1)
+            self.sort_data()
+
+            filters = attr1
+
             data = list()
             for datum in self.data:
                 for filter in filters:
                     if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
                         break
                 else:
+                    data.append(datum)
+
+            return data
+
+        # get_data(value)
+        elif attr2 is None:
+            if self.key is None:
+                raise AssertionError('get_data(value) needs key in DictList.')
+
+            self.sort_data()
+
+            value = attr1
+
+            data = list()
+            for datum in self.data:
+                if datum[self.key] == value:
+                    data.append(datum)
+
+            return data
+
+        # get_data(key, value)
+        else:
+            if not isinstance(attr1, str):
+                raise AssertionError('key(type:{}) should be str.'.format(type(attr1)))
+
+            self.sort_data()
+
+            key = attr1
+            value = attr2
+
+            data = list()
+            for datum in self.data:
+                if datum[key] == value:
                     data.append(datum)
 
             return data

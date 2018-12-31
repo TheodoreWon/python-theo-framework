@@ -1,11 +1,13 @@
-# python temporary folder
+# temporary
 __pycache__
+.vscode/
+test.py
 
-# PyPI generated folder
+# PyPI generated
 dist/
 theo_framework.egg-info/
 build/
 
-# framework creation folder
+# framework creation
 configs/
 files/
