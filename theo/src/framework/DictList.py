@@ -570,7 +570,7 @@ class DictList:
 
     @staticmethod
     def validate_dictlist(key, dictlist):
-        if not isinstance(dict, DictList):
+        if not isinstance(dictlist, DictList):
             raise AssertionError(
                 '[theo.framework.DictList] error: dictlist(type:{}) should be DictList.'.format(type(dictlist)))
 
