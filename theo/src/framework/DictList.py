@@ -262,7 +262,7 @@ class DictList:
     def extend(self, dictlist):
         self.validate_dictlist(self.key, dictlist)
 
-        if len(dictlist.count()):
+        if dictlist.count():
             self.data.extend(dictlist.get_data())
             self.sorted = False
             self.run_walker()
