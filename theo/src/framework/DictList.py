@@ -362,7 +362,7 @@ class DictList:
             from theo.database import MongoDB
 
             if 'MongoDBCtrl' in System.get_components():
-                data = System.execute_interface('MongoDBCtrl', 'load_data', database, collection, sorting_key=self.key, range=range)
+                data = System.execute_interface('MongoDBCtrl', 'load_data', database, collection, self.key, None, range)
                 if len(data):
                     self.data.extend(data)
                     self.sorted = False
@@ -391,7 +391,7 @@ class DictList:
                 System.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
             else:
                 mongodb = MongoDB()
-                mongodb.save_data(database, collection, self.data, self.key)
+                mongodb.save_data(database, collection, self.data, unique_key=self.key)
                 del mongodb
 
         except (ModuleNotFoundError, ImportError):
