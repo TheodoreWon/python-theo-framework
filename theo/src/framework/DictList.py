@@ -53,7 +53,7 @@ class DictList:
         export_csv(file) : exporting the data what is stored list to csv file
             file (str): the file path (ex. os.path.join(os.getcwd(), 'files', 'data.json'))
 
-        import_mongodb(database, collection) : importing the data from mongodb
+        import_mongodb(database, collection, range=None) : importing the data from mongodb
         export_mongodb(database, collection) : exporting the datawhat is stored list to mongodb
 
         walker_handler = plug_in_walker(walker, walker_delay=False, insert=False)
@@ -356,20 +356,20 @@ class DictList:
 
             file_handler.close()
 
-    def import_mongodb(self, database, collection):
+    def import_mongodb(self, database, collection, range=None):
         try:
             from theo.src.framework.System import System
             from theo.database import MongoDB
 
             if 'MongoDBCtrl' in System.get_components():
-                data = System.execute_interface('MongoDBCtrl', 'load_data', database, collection)
+                data = System.execute_interface('MongoDBCtrl', 'load_data', database, collection, sorting_key=self.key, range=range)
                 if len(data):
                     self.data.extend(data)
                     self.sorted = False
                     self.run_walker()
             else:
                 mongodb = MongoDB()
-                data = mongodb.load_data(database, collection)
+                data = mongodb.load_data(database, collection, sorting_key=self.key, range=range)
                 if len(data):
                     self.data.extend(data)
                     self.sorted = False
