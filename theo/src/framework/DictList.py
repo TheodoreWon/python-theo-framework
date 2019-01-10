@@ -294,7 +294,7 @@ class DictList:
         self.validate_file(file)
 
         if os.path.exists(file):
-            file_handler = open(file, 'r')
+            file_handler = open(file, 'r', encoding='UTF-8-sig')
             self.extend_data(json.load(file_handler))
             file_handler.close()
 
@@ -308,7 +308,7 @@ class DictList:
         if not os.path.exists(os.path.dirname(os.path.abspath(file))):
             os.makedirs(os.path.dirname(os.path.abspath(file)))
 
-        file_handler = open(file, 'w')
+        file_handler = open(file, 'w', encoding='UTF-8-sig')
         json.dump(self.data, file_handler, ensure_ascii=False, indent="\t")
         file_handler.close()
 
