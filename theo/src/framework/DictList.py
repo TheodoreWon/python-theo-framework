@@ -131,7 +131,7 @@ class DictList:
                     if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
                         break
                 else:
-                    return copy.copy(datum)
+                    return datum
 
         # get_datum(value)
         elif attr2 is None:
@@ -146,7 +146,7 @@ class DictList:
                 datum = self.sequence_search_datum(self.key, value)
 
             if datum is not None:
-                return copy.copy(datum)
+                return datum
 
         # get_datum(key, value)
         else:
@@ -162,7 +162,7 @@ class DictList:
                 datum = self.sequence_search_datum(key, value)
 
             if datum is not None:
-                return copy.copy(datum)
+                return datum
 
         return None
 
@@ -170,7 +170,7 @@ class DictList:
         # get_data()
         if attr1 is None and attr2 is None:
             self.sort_data()
-            return copy.copy(self.data)
+            return self.data
 
         # get_data(filters)
         if attr2 is None and isinstance(attr1, list):
@@ -387,12 +387,13 @@ class DictList:
 
             self.sort_data()
 
-            if 'MongoDBCtrl' in System.get_components():
-                System.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
-            else:
-                mongodb = MongoDB()
-                mongodb.save_data(database, collection, self.data, unique_key=self.key)
-                del mongodb
+            if len(self.data) != 0:
+                if 'MongoDBCtrl' in System.get_components():
+                    System.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
+                else:
+                    mongodb = MongoDB()
+                    mongodb.save_data(database, collection, self.data, unique_key=self.key)
+                    del mongodb
 
         except (ModuleNotFoundError, ImportError):
             raise AssertionError('[theo.framework.DictList] error: theo-database should be installed to use MongoDB.')

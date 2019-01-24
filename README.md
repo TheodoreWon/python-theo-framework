@@ -14,6 +14,7 @@ I am likely waiting a any kind of contribution.
 Framework : pip install theo-framework, https://github.com/TheodoreWon/python-theo-framework  
 Database : pip install theo-database, https://github.com/TheodoreWon/python-theo-database  
 Message : pip install theo-message, https://github.com/TheodoreWon/python-theo-message  
+Internet : pip install theo-message, https://github.com/TheodoreWon/python-theo-internet  
 Trade : pip install theo-trade, https://github.com/TheodoreWon/python-theo-trade
 
 
