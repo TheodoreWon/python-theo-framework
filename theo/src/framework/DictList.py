@@ -47,10 +47,10 @@ class DictList:
         datum = pop_datum(datum) : poping argument datum if the datum is exist in the stored list
         clear() : clear the stored list
 
-        import_json(file) : importing the json data from json file
-        export_json(file) : exporting the data what is stored list to csv file
-        import_csv(file) : importing the json data from json file
-        export_csv(file) : exporting the data what is stored list to csv file
+        import_json(file, encoding='UTF-8-sig') : importing the json data from json file
+        export_json(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
+        import_csv(file, encoding='UTF-8-sig') : importing the json data from json file
+        export_csv(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
             file (str): the file path (ex. os.path.join(os.getcwd(), 'files', 'data.json'))
 
         import_mongodb(database, collection, range=None) : importing the data from mongodb
@@ -290,33 +290,33 @@ class DictList:
         self.data.clear()
         self.sorted = True
 
-    def import_json(self, file):
+    def import_json(self, file, encoding='UTF-8-sig'):
         self.validate_file(file)
 
         if os.path.exists(file):
-            file_handler = open(file, 'r', encoding='UTF-8-sig')
+            file_handler = open(file, 'r', encoding=encoding)
             self.extend_data(json.load(file_handler))
             file_handler.close()
 
             self.sorted = False
             self.run_walker()
 
-    def export_json(self, file):
+    def export_json(self, file, encoding='UTF-8-sig'):
         self.validate_file(file)
         self.sort_data()
 
         if not os.path.exists(os.path.dirname(os.path.abspath(file))):
             os.makedirs(os.path.dirname(os.path.abspath(file)))
 
-        file_handler = open(file, 'w', encoding='UTF-8-sig')
+        file_handler = open(file, 'w', encoding=encoding)
         json.dump(self.data, file_handler, ensure_ascii=False, indent="\t")
         file_handler.close()
 
-    def import_csv(self, file):
+    def import_csv(self, file, encoding='UTF-8-sig'):
         self.validate_file(file)
 
         if os.path.exists(file):
-            file_handler = open(file, 'r', encoding='utf-8-sig')
+            file_handler = open(file, 'r', encoding=encoding)
             csv_reader = csv.reader(file_handler)
             keys = list()
             for index, values in enumerate(csv_reader):
@@ -335,7 +335,7 @@ class DictList:
             self.sorted = False
             self.run_walker()
 
-    def export_csv(self, file):
+    def export_csv(self, file, encoding='UTF-8-sig'):
         self.validate_file(file)
         self.sort_data()
 
@@ -343,7 +343,7 @@ class DictList:
             os.makedirs(os.path.dirname(os.path.abspath(file)))
 
         if len(self.data) != 0:
-            file_handler = open(file, 'w', encoding='utf-8-sig', newline='\n')
+            file_handler = open(file, 'w', encoding=encoding, newline='\n')
             keys = list(self.data[0].keys())
             csv_writer = csv.writer(file_handler)
             csv_writer.writerow(keys)
