@@ -436,86 +436,16 @@ class DictList:
     When the getting functionality such as get_datum, get_data is called, the data is sorted.
 
     Methods:
-        sort_data
-        sort_data > is_data_ascending_order
-        sort_data > is_data_descending_order
-        sort_data > get_reversed_data
-        sort_data > get_recursive_quick_sorted_data
-
-        binary_search
-
-    NOTE: Why here is the reverse?
-            DictList could be used to store stock price data.
-            Usually, the stock servers provide price data by reversed order.
-            To sort reversed data, the sorting algorithm works as the worst performance.
-            That is why the reverse function is exist.
-
-    NOTE: The sorting method is the recursive quick sorting.
-            If sorting works over limitation time recursively, exception happens.
-            RecursionError: maximum recursion depth exceeded in comparison
-            Iterative quick sorting could be needed.
-            But, the recursive quick sorting's performance is better than the other.
+        sort_data()
+        binary_search_datum(value)
+        sequence_search_datum(key, value)
     """
     def sort_data(self):
         if self.key is not None and not self.sorted and 0 == len(self.walkers):
-            if self.is_data_ascending_order(self.data, self.key):
-                self.sorted = True
-            elif len(self.walkers):
+            if len(self.walkers):
                 raise AssertionError('The data cannot be sorted. Walkers are working.')
-            elif self.is_data_descending_order(self.data, self.key):
-                source_data = copy.copy(self.data)
-                self.data.clear()
-                self.data.extend(self.get_reversed_data(source_data))
-                self.sorted = True
-            else:
-                source_data = copy.copy(self.data)
-                self.data.clear()
-                self.data.extend(self.get_recursive_quick_sorted_data(source_data, self.key))
-                self.sorted = True
 
-    @staticmethod
-    def is_data_ascending_order(data, key):
-        for index in range(1, len(data)):
-            if data[index - 1][key] > data[index][key]:
-                return False
-
-        return True
-
-    @staticmethod
-    def is_data_descending_order(data, key):
-        for index in range(1, len(data)):
-            if data[index - 1][key] < data[index][key]:
-                return False
-
-        return True
-
-    @staticmethod
-    def get_reversed_data(data):
-        reversed_data = list()
-        for datum in reversed(data):
-            reversed_data.append(datum)
-
-        return reversed_data
-
-    @staticmethod
-    def get_recursive_quick_sorted_data(data, key):
-        if len(data) > 1:
-            pivot = data[random.randint(0, len(data) - 1)]
-            left_data, middle_data, right_data = list(), list(), list()
-
-            for index in range(len(data)):
-                if data[index][key] < pivot[key]:
-                    left_data.append(data[index])
-                elif data[index][key] > pivot[key]:
-                    right_data.append(data[index])
-                else:
-                    middle_data.append(data[index])
-
-            return DictList.get_recursive_quick_sorted_data(left_data, key) \
-                + middle_data \
-                + DictList.get_recursive_quick_sorted_data(right_data, key)
-        else:
-            return data
+            self.data.sort(key=lambda datum: datum[self.key])
 
     def binary_search_datum(self, value):
         self.sort_data()
