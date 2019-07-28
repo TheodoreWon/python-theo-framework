@@ -1,5 +1,3 @@
-import copy
-import random
 import collections
 import os
 import json
@@ -23,6 +21,7 @@ class DictList:
     Methods:
         dictlist = DictList(key=None)
 
+        str(dictlist)
         print(log=None, print_all=False)
         length = count() : getting the count value how many dictionaries are stored.
 
@@ -69,51 +68,31 @@ class DictList:
         print(theo_contract) : {'name': 'theo', 'email': 'taehee.won@gmail.com'}
     """
 
-    def __init__(self, key=None):
-        if key is not None and not isinstance(key, str):
-            raise AssertionError('key(type:{}) should be str.'.format(type(key)))
-
+    def __init__(self, key=None, debug_mode=False):
         self.data = list()
 
-        self.key = key
+        self.key = key if key is not None and isinstance(key, str) else None
         self.sorted = True
 
         self.walkers = list()
 
-    def print(self, log=None, print_all=False):
+    def __str__(self):
+        return f'theo.framework.DictList(num:{len(self.data)}/key:{self.key}' \
+            + (f')' if not len(self.walkers) else f'/walkers:{len(self.walkers)})')
+
+    def print(self, log=None, print_all=None):
         self.sort_data()
 
-        if log is not None:
-            from theo.src.framework.Log import Log
-            if not isinstance(log, Log):
-                raise AssertionError(
-                    '[theo.framework.DictList] error: log(type:{}) should be theo.framework.Log.'.format(type(log)))
-
-            log.print('info', 'DictList(num:{}/key:{}) walkers(num:{})'.format(
-                len(self.data), self.key, len(self.walkers)))
-
-            if print_all or len(self.data) <= 6:
-                for index, datum in enumerate(self.data):
-                    log.print('info', '{} {}'.format(index, datum))
-            else:
-                for index in [0, 1, 2]:
-                    log.print('info', '{} {}'.format(index, self.data[index]))
-                log.print('info', '...')
-                for index in [-3, -2, -1]:
-                    log.print('info', '{} {}'.format(len(self.data) + index, self.data[index]))
-
+        print(str(self))
+        if print_all or len(self.data) <= 6:
+            for index, datum in enumerate(self.data):
+                print(f'[index:{index}] {datum}')
         else:
-            print('DictList(num:{}/key:{}) walkers(num:{})'.format(len(self.data), self.key, len(self.walkers)))
-
-            if print_all or len(self.data) <= 6:
-                for index, datum in enumerate(self.data):
-                    print('{} {}'.format(index, datum))
-            else:
-                for index in [0, 1, 2]:
-                    print('{} {}'.format(index, self.data[index]))
-                print('...')
-                for index in [-3, -2, -1]:
-                    print('{} {}'.format(len(self.data) + index, self.data[index]))
+            for index in [0, 1, 2]:
+                print(f'[index:{index}] {self.data[index]}')
+            print('...')
+            for index in [-3, -2, -1]:
+                print(f'[index:{len(self.data) + index}] {self.data[index]}')
 
     def count(self):
         return len(self.data)
