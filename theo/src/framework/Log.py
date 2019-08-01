@@ -55,7 +55,7 @@ class Log:
     log_store_directory = os.path.join(log_directory, datetime.datetime.now().strftime('%Y-%m-%d'))
 
     over_time_log_clear_enabled = False
-    days_over_time = 2
+    days_over_time = 3
 
     @staticmethod
     def configure(print_enabled=None, store_enabled=None,
@@ -63,15 +63,15 @@ class Log:
                   over_time_log_clear_enabled=None, days_over_time=None):
         try:
             if not Log.is_started:
-                Log.print_enabled = True if print_enabled else False
-                Log.store_enabled = True if store_enabled else False
+                Log.print_enabled = True if print_enabled else Log.print_enabled
+                Log.store_enabled = True if store_enabled else Log.store_enabled
 
                 Log.config_directory = config_directory if config_directory else Log.config_directory
                 Log.name_config_path = os.path.join(Log.config_directory, 'name_config.json') if config_directory else Log.name_config_path
                 Log.level_config_path = os.path.join(Log.config_directory, 'level_config.json') if config_directory else Log.level_config_path
                 Log.log_directory = log_directory if log_directory else Log.log_directory
 
-                Log.over_time_log_clear_enabled = True if over_time_log_clear_enabled else False
+                Log.over_time_log_clear_enabled = True if over_time_log_clear_enabled else Log.over_time_log_clear_enabled
                 Log.days_over_time = days_over_time if days_over_time else Log.days_over_time
             else:
                 print('error: config should be configured before using.')
@@ -85,7 +85,7 @@ class Log:
             self.name = name
 
             if not Log.is_started:
-                print(f'Log Enabled(print:{Log.print_enabled}, store:{Log.print_enabled})')
+                print(f'Log Enabled(print:{Log.print_enabled}, store:{Log.store_enabled})')
                 print(f'Log Directories(config:{Log.config_directory}' + (f', log:{Log.log_directory})' if Log.store_enabled else ')'))
                 if Log.store_enabled:
                     print(f'Log clear for over time(enabled:{Log.over_time_log_clear_enabled}'
@@ -120,8 +120,8 @@ class Log:
                         os.makedirs(Log.log_directory)
 
                     if Log.over_time_log_clear_enabled:
-                        for directory_item in os.listdir(Log.log_directory):
-                            if os.path.isdir(os.path.join(Log.log_directory, directory_item)) \
+                        for directory in os.listdir(Log.log_directory):
+                            if os.path.isdir(os.path.join(Log.log_directory, directory)) \
                                 and (Log.days_over_time <= (datetime.datetime.now() - datetime.datetime.strptime(directory, '%Y-%m-%d')).days):
                                     shutil.rmtree(os.path.join(Log.log_directory, directory))
 
@@ -141,9 +141,9 @@ class Log:
 
             self.level_config = Log.name_config_dictlist.get(name)
             if not self.level_config:
-                self.name_config = {'name': name, 'print': 'info', 'store': 'debug'}
+                self.level_config = {'name': name, 'print': 'info', 'store': 'debug'}
 
-                Log.name_config_dictlist.append(self.name_config)
+                Log.name_config_dictlist.append(self.level_config)
                 Log.name_config_dictlist.export_json(Log.name_config_path)
         except Exception as error:
             print(f'error: {error} / Log(name:{name}/{type(name)})')
@@ -166,7 +166,7 @@ class Log:
 
     def print(self, level, message):
         try:
-            log = f'[{self.name}][{level}] {meesage}'
+            log = f'[{self.name}][{level}] {message}'
             level_value = Log.get_level_value(level)
 
             if Log.print_logger and level_value >= Log.get_level_value(self.level_config['print']):
@@ -175,4 +175,4 @@ class Log:
             if Log.store_logger and level_value >= Log.get_level_value(self.level_config['store']):
                 Log.store_logger.info(log)
         except Exception as error:
-            print(f'error: {error} / log.print(level:{level}/{type(level)})')
+            print(f'error: {error} / log.print(level:{level}/{type(level)}, message:{message}/{type(message)})')
