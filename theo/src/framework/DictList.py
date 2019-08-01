@@ -6,57 +6,55 @@ import csv
 
 class DictList:
     """
-    DictList is a simple data structure.
+    DictList is a simple list structure.
     DictList stores a list what is consist of dictionaries.
-
-    If a key is set, quick sorting and binary searching is provided.
-    The functionality gives us good performance for getting data.
     A variety of importing and exporting methods is supported. (JSON, CSV, MONGODB, etc.)
-    And to refine a data, walker feature is supported.
+    And to refine a list, walker feature is supported.
 
     Attributes:
         key (str, optional): To support sorting and searching algorithm, a key is needed.
-                                If the key is set, all of the datum dictionary should includes the key.
+                                If the key is set, all of the element dictionary should includes the key.
 
     Methods:
         dictlist = DictList(key=None)
 
         str(dictlist)
-        print(log=None, print_all=False)
-        length = count() : getting the count value how many dictionaries are stored.
+        dictlist.print(print_all=False)
+        length = dictlist.count() : getting the count value how many dictionaries are stored
 
-        datum = get_datum(value) : getting the dictionary datum what is matched with the stored key and argument value.
-        datum = get_datum(filters) : getting the datum what is matched with argument filters.
-        datum = get_datum(key, value) : getting the datum what is matched with argument key and argument value.
+        element = dictlist.get(value)      : getting the element what is matched with the stored key and argument value
+        element = dictlist.get(key, value) : getting the element what is matched with argument key and argument value
+        element = dictlist.get(queries)    : getting the element what is matched with argument queries
+            queries (list): the list of queries
+            query (dictionary) : the key 'key', 'value' should be included to find
 
-        data = get_data() : getting the data what is stored
-        data = get_date(value) : getting the data what is matched with the stored key and argument value
-        data = get_date(filters) : getting the data what is matched with argument filters.
-        data = get_data(key, value) : getting the data what is matched with argument key and argument value.
+        list = dictlist.get_list()           : getting the list what is stored
+        list = dictlist.get_list(value)      : getting the list what is matched with the stored key and argument value
+        list = dictlist.get_list(key, value) : getting the list what is matched with argument key and argument value
+        list = dictlist.get_list(queries)    : getting the list what is matched with argument queries
 
-        values = get_values(key, overlap=False, filters=None)
-            filters (list): dictionary datum list. the filter has the key, 'key' and 'value'.
+        list = values(key)
 
-        append(datum) : appending argument datum
-        insert(datum) : inserting argument datum at the first of the stored list
-        extend(dictlist) : extending the data from argument dictlist
-        extend_data(data) : extending the data
+        dictlist.append(element) : appending argument element
+        dictlist.insert(element) : inserting argument element at the first of the stored list
+        dictlist.extend(dictlist) : extending the list from argument dictlist
+        dictlist.extend_list(list) : extending the list
 
-        remove_datum(datum) : removing argument datum if the datum is exist in the stored list
-        datum = pop_datum(datum) : poping argument datum if the datum is exist in the stored list
-        clear() : clear the stored list
+        dictlist.remove(element) : removing argument element if the element is exist in the stored list
+        element = dictlist.pop(element) : poping argument element if the element is exist in the stored list
+        dictlist.clear() : clear the stored list
 
-        import_json(file, encoding='UTF-8-sig') : importing the json data from json file
-        export_json(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
-        import_csv(file, encoding='UTF-8-sig') : importing the json data from json file
-        export_csv(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
+        dictlist.import_json(file, encoding='UTF-8-sig') : importing the json data from json file
+        dictlist.export_json(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
+        dictlist.import_csv(file, encoding='UTF-8-sig') : importing the json data from json file
+        dictlist.export_csv(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
             file (str): the file path (ex. os.path.join(os.getcwd(), 'files', 'data.json'))
 
-        import_mongodb(database, collection, range=None) : importing the data from mongodb
-        export_mongodb(database, collection) : exporting the datawhat is stored list to mongodb
+        dictlist.import_mongodb(database, collection, range=None) : importing the data from mongodb
+        dictlist.export_mongodb(database, collection) : exporting the datawhat is stored list to mongodb
 
-        walker_handler = plug_in_walker(walker, walker_delay=False, insert=False)
-        plug_out_walker(walker_handler)
+        walker_handler = dictlist.plug_in_walker(walker, walker_delay=False, insert=False)
+        dictlist.plug_out_walker(walker_handler)
 
     Example:
         contract_dictlist = DictList(key='name')
@@ -64,11 +62,11 @@ class DictList:
         contract_dictlist.print()
 
         contract_dictlist.append({'name': 'theo', 'email': 'taehee.won@gmail.com'})
-        theo_contract = contract_dictlist.get_datum('theo')
+        theo_contract = contract_dictlist.get('theo')
         print(theo_contract) : {'name': 'theo', 'email': 'taehee.won@gmail.com'}
     """
 
-    def __init__(self, key=None, debug_mode=False):
+    def __init__(self, key=None, initial_data=None):
         self.data = list()
 
         self.key = key if key is not None and isinstance(key, str) else None
@@ -77,263 +75,322 @@ class DictList:
         self.walkers = list()
 
     def __str__(self):
-        return f'theo.framework.DictList(num:{len(self.data)}/key:{self.key}' \
-            + (f')' if not len(self.walkers) else f'/walkers:{len(self.walkers)})')
+        return f'DictList(num:{len(self.data)}/key:{self.key}' \
+               + (f')' if not len(self.walkers) else f'/walkers:{len(self.walkers)})')
 
-    def print(self, log=None, print_all=None):
-        self.sort_data()
+    def print(self, print_all=None):
+        try:
+            if self.key is not None and not self.sorted:
+                self.data.sort(key=lambda element: element[self.key])
+                self.sorted = True
+        except Exception as error:
+            print(f'error: {error} / dictlist.print(print_all:{print_all}/{type(print_all)})')
+            print(f'       no value for the key({self.key}) at '
+                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            return
 
-        print(str(self))
-        if print_all or len(self.data) <= 6:
-            for index, datum in enumerate(self.data):
-                print(f'[index:{index}] {datum}')
-        else:
-            for index in [0, 1, 2]:
-                print(f'[index:{index}] {self.data[index]}')
-            print('...')
-            for index in [-3, -2, -1]:
-                print(f'[index:{len(self.data) + index}] {self.data[index]}')
+        try:
+            print(str(self))
+            if print_all or len(self.data) <= 6:
+                for index, element in enumerate(self.data):
+                    print(f'[index:{index}] {element}')
+            else:
+                for index in [0, 1, 2]:
+                    print(f'[index:{index}] {self.data[index]}')
+                print('...')
+                for index in [-3, -2, -1]:
+                    print(f'[index:{len(self.data) + index}] {self.data[index]}')
+        except Exception as error:
+            print(f'error: {error} / dictlist.print(print_all:{print_all}/{type(print_all)})')
 
     def count(self):
         return len(self.data)
 
-    def get_datum(self, attr1, attr2=None):
-        # get_datum(filters)
+    def get(self, attr1, attr2=None):
+        try:
+            if self.key is not None and not self.sorted:
+                self.data.sort(key=lambda element: element[self.key])
+                self.sorted = True
+        except Exception as error:
+            print(f'error: {error} / dictlist.get(attr1:{attr1}/{type(attr1)}, attr2:{attr2}/{type(attr2)})')
+            print(f'       no value for the key({self.key}) at '
+                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            return None
+
+        # element = get(queries) : getting the element what is matched with argument queries
         if attr2 is None and isinstance(attr1, list):
-            self.validate_filters(attr1)
-            self.sort_data()
+            try:
+                if not len(attr1):
+                    raise
 
-            filters = attr1
+                for element in self.data:
+                    for query in attr1:
+                        if not (query['key'] in element and element[query['key']] == query['value']):
+                            break
+                    else:
+                        return element
 
-            for datum in self.data:
-                for filter in filters:
-                    if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
-                        break
-                else:
-                    return datum
+                return None
+            except Exception as error:
+                print(f'error: {error} / dictlist.get(queries:{attr1}/{type(attr1)})')
+                print('        element = dictlist.get(queries) : getting the element what is matched with argument queries')
+                return None
 
-        # get_datum(value)
+        # element = dictlist.get(value) : getting the element what is matched with the stored key and argument value
         elif attr2 is None:
-            if self.key is None:
-                raise AssertionError('get_datum(value) needs key in DictList.')
+            try:
+                left_index, right_index = 0, len(self.data) - 1
+                while left_index <= right_index:
+                    index = (left_index + right_index) // 2
 
-            value = attr1
+                    if self.data[index][self.key] > attr1:
+                        right_index = index - 1
+                    elif self.data[index][self.key] < attr1:
+                        left_index = index + 1
+                    else:
+                        return self.data[index]
 
-            if 0 == len(self.walkers):
-                datum = self.binary_search_datum(value)
-            else:
-                datum = self.sequence_search_datum(self.key, value)
+                return None
+            except Exception as error:
+                print(f'error: {error} / dictlist.get(value:{attr1}/{type(attr1)})')
+                print('        element = dictlist.get(value) : getting the element what is matched with the stored key and argument value')
+                print('        if you set the key, the key could be cleared by activation of walker')
+                return None
 
-            if datum is not None:
-                return datum
-
-        # get_datum(key, value)
+        # element = dictlist.get(key, value) : getting the element what is matched with argument key and argument value
         else:
-            if not isinstance(attr1, str):
-                raise AssertionError('key(type:{}) should be str.'.format(type(attr1)))
+            try:
+                for element in self.data:
+                    if attr1 in element and element[attr1] == attr2:
+                        return element
 
-            key = attr1
-            value = attr2
+                return None
+            except Exception as error:
+                print(f'error: {error} / dictlist.get(key:{attr1}/{type(attr1)}, value:{attr2}/{type(attr2)})')
+                print('        element = dictlist.get(key, value) : getting the element what is matched with argument key and argument value')
+                return None
 
-            if self.key is not None and self.key == key and 0 == len(self.walkers):
-                datum = self.binary_search_datum(value)
-            else:
-                datum = self.sequence_search_datum(key, value)
+    def get_list(self, attr1=None, attr2=None):
+        try:
+            if self.key is not None and not self.sorted:
+                self.data.sort(key=lambda element: element[self.key])
+                self.sorted = True
+        except Exception as error:
+            print(f'error: {error} / dictlist.get_list(attr1:{attr1}/{type(attr1)}, attr2:{attr2}/{type(attr2)})')
+            print(f'       no value for the key({self.key}) at '
+                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            return None
 
-            if datum is not None:
-                return datum
-
-        return None
-
-    def get_data(self, attr1=None, attr2=None):
-        # get_data()
+        # list = dictlist.get_list() : getting the list what is stored
         if attr1 is None and attr2 is None:
-            self.sort_data()
             return self.data
 
-        # get_data(filters)
+        # list = dictlist.get_list(queries) : getting the list what is matched with argument queries
         if attr2 is None and isinstance(attr1, list):
-            self.validate_filters(attr1)
-            self.sort_data()
+            try:
+                if not len(attr1):
+                    raise
 
-            filters = attr1
+                data = list()
+                for element in self.data:
+                    for query in attr1:
+                        if not (query['key'] in element and element[query['key']] == query['value']):
+                            break
+                    else:
+                        data.append(element)
 
-            data = list()
-            for datum in self.data:
-                for filter in filters:
-                    if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
-                        break
-                else:
-                    data.append(datum)
+                return data
+            except Exception as error:
+                print(f'error: {error} / dictlist.get_list(queries:{attr1}/{type(attr1)})')
+                print('        list = dictlist.get_list(queries) : getting the list what is matched with argument queries')
+                return None
 
-            return data
-
-        # get_data(value)
+        # list = dictlist.get_list(value) : getting the list what is matched with the stored key and argument value
         elif attr2 is None:
-            if self.key is None:
-                raise AssertionError('get_data(value) needs key in DictList.')
+            try:
+                return list(filter(lambda element: element[self.key] == attr1, self.data))
+            except Exception as error:
+                print(f'error: {error} / dictlist.get_list(value:{attr1}/{type(attr1)})')
+                print('        list = dictlist.get_list(value) : getting the list what is matched with the stored key and argument value')
+                return None
 
-            self.sort_data()
-
-            value = attr1
-
-            data = list()
-            for datum in self.data:
-                if datum[self.key] == value:
-                    data.append(datum)
-
-            return data
-
-        # get_data(key, value)
+        # list = dictlist.get_list(key, value) : getting the list what is matched with argument key and argument value
         else:
-            if not isinstance(attr1, str):
-                raise AssertionError('key(type:{}) should be str.'.format(type(attr1)))
+            try:
+                return list(filter(lambda element: element[attr1] == attr2, self.data))
+            except Exception as error:
+                print(f'error: {error} / dictlist.get_list(key:{attr1}/{type(attr1)}, value:{attr2}/{type(attr2)})')
+                print('        list = dictlist.get_list(key, value) : getting the list what is matched with argument key and argument value')
+                return None
 
-            self.sort_data()
+    def values(self, key):
+        try:
+            if self.key is not None and not self.sorted:
+                self.data.sort(key=lambda element: element[self.key])
+                self.sorted = True
+        except Exception as error:
+            print(f'error: {error} / dictlist.values(key:{key}/{type(key)})')
+            print(f'       no value for the key({self.key}) at '
+                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            return None
 
-            key = attr1
-            value = attr2
+        try:
+            return list(map(lambda element: element[key], filter(lambda element: key in element, self.data)))
+            #return list(element[key] for element in filter(lambda element: key in element, self.data))
+            #return list(element[key] for element in self.data if key in element)
+        except Exception as error:
+            print(f'error: {error} / dictlist.values(key:{key}/{type(key)})')
+            return None
 
-            data = list()
-            for datum in self.data:
-                if datum[key] == value:
-                    data.append(datum)
+    def append(self, element):
+        try:
+            self.data.append(element)
+            self.sorted = False
 
-            return data
+            self.run_walker()
+        except Exception as error:
+            print(f'error: {error} / dictlist.append(element:{element}/{type(element)})')
 
-    def get_values(self, key, overlap=False, filters=None):
-        self.validate_filters(filters)
-        self.sort_data()
+    def insert(self, element):
+        try:
+            self.data.insert(0, element)
+            self.sorted = False
 
-        if filters is None:
-            filters = list()
-
-        values = list()
-        for datum in self.data:
-            if key not in datum:
-                continue
-
-            for filter in filters:
-                if not (filter['key'] in datum and datum[filter['key']] == filter['value']):
-                    break
-            else:
-                values.append(datum[key])
-
-        if overlap:
-            return values
-        else:
-            return list(collections.OrderedDict.fromkeys(values))
-
-    def append(self, datum):
-        self.validate_datum(self.key, datum)
-
-        self.data.append(datum)
-        self.sorted = False
-        self.run_walker()
-
-    def insert(self, datum):
-        self.validate_datum(self.key, datum)
-
-        self.data.insert(0, datum)
-        self.sorted = False
-        self.run_walker()
+            self.run_walker()
+        except Exception as error:
+            print(f'error: {error} / dictlist.insert(element:{element}/{type(element)})')
 
     def extend(self, dictlist):
-        self.validate_dictlist(self.key, dictlist)
+        try:
+            if dictlist.count():
+                self.data.extend(dictlist.get_list())
+                self.sorted = False
 
-        if dictlist.count():
-            self.data.extend(dictlist.get_data())
-            self.sorted = False
-            self.run_walker()
+                self.run_walker()
+        except Exception as error:
+            print(f'error: {error} / dictlist.extend(dictlist:{dictlist}/{type(dictlist)})')
 
-    def extend_data(self, data):
-        self.validate_data(self.key, data)
+    def extend_list(self, data):
+        try:
+            if len(data):
+                self.data.extend(data)
+                self.sorted = False
 
-        if len(data):
-            self.data.extend(data)
-            self.sorted = False
-            self.run_walker()
+                self.run_walker()
+        except Exception as error:
+            print(f'error: {error} / dictlist.extend_list(list:{data}/{type(data)})')
 
-    def pop_datum(self, datum):
-        if datum in self.data:
-            self.data.remove(datum)
-            return datum
+    def remove(self, element):
+        try:
+            self.data.remove(element)
+        except Exception as error:
+            print(f'error: {error} / dictlist.remove(element:{element}/{type(element)})')
 
-        return None
+    def pop(self, element):
+        try:
+            if element in self.data:
+                self.data.remove(element)
+                return element
 
-    def remove_datum(self, datum):
-        if datum in self.data:
-            self.data.remove(datum)
+            return None
+        except Exception as error:
+            print(f'error: {error} / dictlist.remove(element:{element}/{type(element)})')
+            return None
 
     def clear(self):
         self.data.clear()
         self.sorted = True
 
     def import_json(self, file, encoding='UTF-8-sig'):
-        self.validate_file(file)
+        try:
+            if os.path.exists(file):
+                file_handler = open(file, 'r', encoding=encoding)
+                data = json.load(file_handler)
+                file_handler.close()
 
-        if os.path.exists(file):
-            file_handler = open(file, 'r', encoding=encoding)
-            self.extend_data(json.load(file_handler))
-            file_handler.close()
+                if len(data):
+                    self.data.extend(data)
+                    self.sorted = False
 
-            self.sorted = False
-            self.run_walker()
+                    self.run_walker()
+        except Exception as error:
+            print(f'error: {error} / dictlist.import_json(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
 
     def export_json(self, file, encoding='UTF-8-sig'):
-        self.validate_file(file)
-        self.sort_data()
+        try:
+            if self.key is not None and not self.sorted:
+                self.data.sort(key=lambda element: element[self.key])
+                self.sorted = True
+        except Exception as error:
+            print(f'error: {error} / dictlist.import_json(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
+            print(f'       no value for the key({self.key}) at '
+                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            return None
 
-        if not os.path.exists(os.path.dirname(os.path.abspath(file))):
-            os.makedirs(os.path.dirname(os.path.abspath(file)))
+        try:
+            if len(self.data):
+                if not os.path.exists(os.path.dirname(os.path.abspath(file))):
+                    os.makedirs(os.path.dirname(os.path.abspath(file)))
 
-        file_handler = open(file, 'w', encoding=encoding)
-        json.dump(self.data, file_handler, ensure_ascii=False, indent="\t")
-        file_handler.close()
+                file_handler = open(file, 'w', encoding=encoding)
+                json.dump(self.data, file_handler, ensure_ascii=False, indent="\t")
+                file_handler.close()
+        except Exception as error:
+            print(f'error: {error} / dictlist.import_json(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
 
     def import_csv(self, file, encoding='UTF-8-sig'):
-        self.validate_file(file)
+        try:
+            if os.path.exists(file):
+                file_handler = open(file, 'r', encoding=encoding)
+                csv_reader = csv.reader(file_handler)
+                data = list()
+                for index, values in enumerate(csv_reader):
+                    if index == 0:
+                        keys = list(map(lambda value: value, values))
+                    else:
+                        element = dict()
+                        for key_index, key in enumerate(keys):
+                            if values[key_index]:
+                                element[key] = values[key_index]
 
-        if os.path.exists(file):
-            file_handler = open(file, 'r', encoding=encoding)
-            csv_reader = csv.reader(file_handler)
-            keys = list()
-            for index, values in enumerate(csv_reader):
-                if index == 0:
-                    for value in values:
-                        keys.append(value)
-                else:
-                    datum = dict()
-                    for key_index, key in enumerate(keys):
-                        datum[key] = values[key_index]
+                        data.append(element)
 
-                    self.append(datum)
+                file_handler.close()
 
-            file_handler.close()
+                if len(data):
+                    self.data.extend(data)
+                    self.sorted = False
 
-            self.sorted = False
-            self.run_walker()
+                    self.run_walker()
+        except Exception as error:
+            print(f'error: {error} / dictlist.import_csv(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
 
     def export_csv(self, file, encoding='UTF-8-sig'):
-        self.validate_file(file)
-        self.sort_data()
+        try:
+            if self.key is not None and not self.sorted:
+                self.data.sort(key=lambda element: element[self.key])
+                self.sorted = True
+        except Exception as error:
+            print(f'error: {error} / dictlist.export_csv(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
+            print(f'       no value for the key({self.key}) at '
+                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            return None
 
-        if not os.path.exists(os.path.dirname(os.path.abspath(file))):
-            os.makedirs(os.path.dirname(os.path.abspath(file)))
+        try:
+            if len(self.data):
+                if not os.path.exists(os.path.dirname(os.path.abspath(file))):
+                    os.makedirs(os.path.dirname(os.path.abspath(file)))
 
-        if len(self.data) != 0:
-            file_handler = open(file, 'w', encoding=encoding, newline='\n')
-            keys = list(self.data[0].keys())
-            csv_writer = csv.writer(file_handler)
-            csv_writer.writerow(keys)
-            for datum in self.data:
-                values = list()
-                for key in keys:
-                    values.append(str(datum.get(key)))
+                file_handler = open(file, 'w', encoding=encoding, newline='\n')
+                keys = list(self.data[0].keys())
+                csv_writer = csv.writer(file_handler)
+                csv_writer.writerow(keys)
+                for element in self.data:
+                    csv_writer.writerow(list(map(lambda key: str(element.get(key)) if key in element else '', keys)))
 
-                csv_writer.writerow(values)
-
-            file_handler.close()
+                file_handler.close()
+        except Exception as error:
+            print(f'error: {error} / dictlist.export_csv(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
 
     def import_mongodb(self, database, collection, range=None):
         try:
@@ -342,168 +399,82 @@ class DictList:
 
             if 'MongoDBCtrl' in System.get_components():
                 data = System.execute_interface('MongoDBCtrl', 'load_data', database, collection, self.key, None, range)
-                if len(data):
-                    self.data.extend(data)
-                    self.sorted = False
-                    self.run_walker()
             else:
                 mongodb = MongoDB()
                 data = mongodb.load_data(database, collection, sorting_key=self.key, range=range)
-                if len(data):
-                    self.data.extend(data)
-                    self.sorted = False
-                    self.run_walker()
-
                 del mongodb
 
-        except (ModuleNotFoundError, ImportError):
-            raise AssertionError('[theo.framework.DictList] error: theo-database should be installed to use MongoDB.')
+            if len(data):
+                self.data.extend(data)
+                self.sorted = False
+                self.run_walker()
+        except Exception as error:
+            print(f'error: {error} / dictlist.import_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)})')
 
     def export_mongodb(self, database, collection):
         try:
-            from theo.src.framework.System import System
-            from theo.database import MongoDB
+            if self.key is not None and not self.sorted:
+                self.data.sort(key=lambda element: element[self.key])
+                self.sorted = True
+        except Exception as error:
+            print(f'error: {error} / dictlist.export_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)})')
+            print(f'       no value for the key({self.key}) at '
+                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            return None
 
-            self.sort_data()
+        try:
+            if len(self.data):
+                from theo.src.framework.System import System
+                from theo.database import MongoDB
 
-            if len(self.data) != 0:
                 if 'MongoDBCtrl' in System.get_components():
                     System.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
                 else:
                     mongodb = MongoDB()
                     mongodb.save_data(database, collection, self.data, unique_key=self.key)
                     del mongodb
-
-        except (ModuleNotFoundError, ImportError):
-            raise AssertionError('[theo.framework.DictList] error: theo-database should be installed to use MongoDB.')
+        except Exception as error:
+            print(f'error: {error} / dictlist.export_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)})')
 
     def plug_in_walker(self, walker, walker_delay=False, insert=False):
-        self.sort_data()
+        try:
+            if self.key is not None and not self.sorted:
+                self.data.sort(key=lambda element: element[self.key])
+                self.sorted = True
+        except Exception as error:
+            print(f'error: {error} / dictlist.plug_in_walker(walker:{walker}/{type(walker)}, walker_delay:{walker_delay}/{type(walker_delay)}, insert:{insert}/{type(insert)})')
+            print(f'       no value for the key({self.key}) at '
+                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            return None
 
-        handler = {'index': 0, 'walker': walker}
-        if insert:
-            self.walkers.insert(0, handler)
-        else:
-            self.walkers.append(handler)
+        try:
+            handler = {'index': 0, 'walker': walker}
+            if insert:
+                self.walkers.insert(0, handler)
+            else:
+                self.walkers.append(handler)
 
-        if not walker_delay:
-            self.run_walker()
+            if not walker_delay:
+                self.run_walker()
 
-        return handler
+            return handler
+        except Exception as error:
+            print(f'error: {error} / dictlist.plug_in_walker(walker:{walker}/{type(walker)}, walker_delay:{walker_delay}/{type(walker_delay)}, insert:{insert}/{type(insert)})')
+            return None
 
     def plug_out_walker(self, handler):
         self.walkers.remove(handler)
 
     def run_walker(self):
-        if 0 != len(self.walkers):
-            index = self.count()
-            for walker in self.walkers:
-                if walker['index'] < index:
-                    index = walker['index']
-
-            while index != self.count():
-                for walker in self.walkers:
-                    if walker['index'] == index:
-                        walker['walker'](self.data[index])
-                        walker['index'] = walker['index'] + 1
-
-                index = index + 1
-
-    """
-    Internal sorting, searching functions
-
-    When the getting functionality such as get_datum, get_data is called, the data is sorted.
-
-    Methods:
-        sort_data()
-        binary_search_datum(value)
-        sequence_search_datum(key, value)
-    """
-    def sort_data(self):
-        if self.key is not None and not self.sorted and 0 == len(self.walkers):
+        try:
             if len(self.walkers):
-                raise AssertionError('The data cannot be sorted. Walkers are working.')
+                index = min(map(lambda walker: walker['index'], self.walkers))
+                while index != len(self.data):
+                    for walker in self.walkers:
+                        if walker['index'] == index:
+                            walker['walker'](self.data[index])
+                            walker['index'] = walker['index'] + 1
 
-            self.data.sort(key=lambda datum: datum[self.key])
-
-    def binary_search_datum(self, value):
-        self.sort_data()
-
-        start_index = 0
-        last_index = self.count() - 1
-
-        while start_index <= last_index:
-            index = (start_index + last_index) // 2
-
-            if self.data[index][self.key] > value:
-                last_index = index - 1
-            elif self.data[index][self.key] < value:
-                start_index = index + 1
-            else:
-                return self.data[index]
-
-        return None
-
-    def sequence_search_datum(self, key, value):
-        self.sort_data()
-
-        for datum in self.data:
-            if key in datum and datum[key] == value:
-                return datum
-
-        return None
-
-    """
-    Internal validation functions
-    """
-    @staticmethod
-    def validate_datum(key, datum):
-        if not isinstance(datum, dict):
-            raise AssertionError('[theo.framework.DictList] error: datum(type:{}) should be dict.'.format(type(datum)))
-
-        if key is not None and key not in datum:
-            raise AssertionError(
-                '[theo.framework.DictList] error: datum(keys:{}) does not have the key({}).'.format(
-                    list(datum.keys()), key))
-
-    @staticmethod
-    def validate_data(key, data):
-        if not isinstance(data, list):
-            raise AssertionError('[theo.framework.DictList] error: data(type:{}) should be list.'.format(type(data)))
-
-        if key is not None:
-            for datum in data:
-                if key not in datum:
-                    raise AssertionError(
-                        '[theo.framework.DictList] error: datum(keys:{}) does not have the key({}).'.format(
-                            list(datum.keys()), key))
-
-    @staticmethod
-    def validate_dictlist(key, dictlist):
-        if not isinstance(dictlist, DictList):
-            raise AssertionError(
-                '[theo.framework.DictList] error: dictlist(type:{}) should be DictList.'.format(type(dictlist)))
-
-        DictList.validate_data(key, dictlist.get_data())
-
-    @staticmethod
-    def validate_filters(filters):
-        if filters is not None:
-            if not isinstance(filters, list):
-                raise AssertionError(
-                    '[theo.framework.DictList] error: filters(type:{}) should be list.'.format(type(filters)))
-
-            for filter in filters:
-                if not isinstance(filter, dict):
-                    raise AssertionError(
-                        '[theo.framework.DictList] error: filter(type:{}) should be dict.'.format(type(filter)))
-
-                if not ('key' in filter and 'value' in filter):
-                    raise AssertionError(
-                        '[theo.framework.DictList] error: filter(keys:{}) does not have key or value.'.format(
-                            list(filter.keys())))
-
-    @staticmethod
-    def validate_file(file):
-        if not isinstance(file, str):
-            raise AssertionError('[theo.framework.DictList] error: file(type:{}) should be str.'.format(type(file)))
+                    index = index + 1
+        except Exception as error:
+            print(f'error: {error} / dictlist.run_walker()')

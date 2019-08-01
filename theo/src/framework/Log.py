@@ -23,11 +23,10 @@ class Log:
     To store a log, calling configure(store_enabled=True) is needed before construct Log class.
 
     Methods:
-        configure(print_enabled=None, store_enabled=None,
-                  config_directory=None, log_directory=None,
+        configure(print_enabled=None, store_enabled=None, config_directory=None, log_directory=None,
                   over_time_log_clear_enabled=None, days_over_time=None)
         log = Log(name)
-        print(level, *messages)
+        log.print(level, message)
 
     Example:
         from theo.framework import Log
@@ -45,13 +44,6 @@ class Log:
     name_config_dictlist = DictList(key='name')
     level_config_dictlist = DictList(key='level')
 
-    """
-    Configurations for Log
-    1. Enable print or store
-    2. Config directory
-    3. Log directory
-    4. Automated clearing log data feature
-    """
     print_enabled = True
     store_enabled = False
 
@@ -69,154 +61,118 @@ class Log:
     def configure(print_enabled=None, store_enabled=None,
                   config_directory=None, log_directory=None,
                   over_time_log_clear_enabled=None, days_over_time=None):
-        if not Log.is_started:
-            if print_enabled is not None:
-                if not isinstance(print_enabled, bool):
-                    raise AssertionError(
-                        '[theo.framework.Log] error: print_enabled(type:{}) should be bool.'.format(
-                            type(print_enabled)))
+        try:
+            if not Log.is_started:
+                Log.print_enabled = True if print_enabled else False
+                Log.store_enabled = True if store_enabled else False
 
-                Log.print_enabled = print_enabled
+                Log.config_directory = config_directory if config_directory else Log.config_directory
+                Log.name_config_path = os.path.join(Log.config_directory, 'name_config.json') if config_directory else Log.name_config_path
+                Log.level_config_path = os.path.join(Log.config_directory, 'level_config.json') if config_directory else Log.level_config_path
+                Log.log_directory = log_directory if log_directory else Log.log_directory
 
-            if store_enabled is not None:
-                if not isinstance(store_enabled, bool):
-                    raise AssertionError(
-                        '[theo.framework.Log] error: store_enabled(type:{}) should be bool.'.format(
-                            type(store_enabled)))
-
-                Log.store_enabled = store_enabled
-
-            if config_directory is not None:
-                if not isinstance(config_directory, str):
-                    raise AssertionError(
-                        '[theo.framework.Log] error: config_directory(type:{}) should be str.'.format(
-                            type(config_directory)))
-
-                Log.config_directory = config_directory
-                Log.name_config_path = os.path.join(Log.config_directory, 'name_config.json')
-                Log.level_config_path = os.path.join(Log.config_directory, 'level_config.json')
-
-            if log_directory is not None:
-                if not isinstance(log_directory, str):
-                    raise AssertionError(
-                        '[theo.framework.Log] error: log_directory(type:{}) should be str.'.format(type(log_directory)))
-
-                Log.log_directory = log_directory
-        else:
-            raise AssertionError('[theo.framework.Log] error: config should be configured before using.')
-            # print('[theo.framework.Log] warning: config should be configured before using.')
-
-    @staticmethod
-    def print_config():
-        print('[theo.framework.Log] print configuration')
-        print('- Enabled')
-        print('    Print : {}'.format(Log.print_enabled))
-        print('    Store : {}'.format(Log.store_enabled))
-        print('- Directories')
-        print('    Config : {}'.format(Log.config_directory))
-        print('    Log    : {}'.format(Log.log_directory))
-        print('- Options')
-        print('    Over time log clear : Enabled({}) Days({})'.format(Log.over_time_log_clear_enabled,
-                                                                      Log.days_over_time))
+                Log.over_time_log_clear_enabled = True if over_time_log_clear_enabled else False
+                Log.days_over_time = days_over_time if days_over_time else Log.days_over_time
+            else:
+                print('error: config should be configured before using.')
+        except Exception as error:
+            print(f'error: {error} / Log.configure(print_enabled:{print_enabled}/{type(print_enabled)}, store_enabled:{store_enabled}/{type(store_enabled)},')
+            print(f'       config_directory:{config_directory}/{type(config_directory)}, log_directory:{log_directory}/{type(log_directory)}'
+                  + f', over_time_log_clear_enabled:{over_time_log_clear_enabled}/{type(over_time_log_clear_enabled)}, days_over_time:{days_over_time}/{type(days_over_time)}')
 
     def __init__(self, name):
-        if not isinstance(name, str):
-            raise AssertionError('[theo.framework.Log] error: name(type:{}) should be str.'.format(type(name)))
+        try:
+            self.name = name
 
-        Log.initial()
+            if not Log.is_started:
+                print(f'Log Enabled(print:{Log.print_enabled}, store:{Log.print_enabled})')
+                print(f'Log Directories(config:{Log.config_directory}' + (f', log:{Log.log_directory})' if Log.store_enabled else ')'))
+                if Log.store_enabled:
+                    print(f'Log clear for over time(enabled:{Log.over_time_log_clear_enabled}'
+                          + (f', days:{Log.days_over_time})' if Log.over_time_log_clear_enabled else ')'))
 
-        self.name = name
-        self.level_config = Log.get_level_config(self.name)
+                if not os.path.exists(Log.config_directory):
+                    os.makedirs(Log.config_directory)
 
-    def print(self, level, *messages):
-        log = '[{}][{}] '.format(self.name, level)
-        for message in messages:
-            log += str(message)
+                if os.path.exists(Log.name_config_path):
+                    Log.name_config_dictlist.import_json(Log.name_config_path)
 
-        level_value = Log.get_level_value(level)
-        if Log.print_logger is not None and level_value >= Log.get_level_value(self.level_config['print']):
-            Log.print_logger.info(log)
+                if not os.path.exists(Log.level_config_path):
+                    Log.level_config_dictlist.append({'level': 'critical', 'value': 100})
+                    Log.level_config_dictlist.append({'level': 'info', 'value': 50})
+                    Log.level_config_dictlist.append({'level': 'debug', 'value': 30})
+                    Log.level_config_dictlist.append({'level': 'none', 'value': 0})
 
-        if Log.store_logger is not None and level_value >= Log.get_level_value(self.level_config['store']):
-            Log.store_logger.info(log)
+                    Log.level_config_dictlist.export_json(Log.level_config_path)
+                else:
+                    Log.level_config_dictlist.import_json(Log.level_config_path)
 
-    @staticmethod
-    def initial():
-        if not Log.is_started:
-            Log.print_config()
+                if Log.print_enabled:
+                    Log.print_logger = logging.getLogger('print')
+                    Log.print_logger.setLevel(logging.INFO)
 
-            # configuration files
-            if not os.path.exists(Log.config_directory):
-                os.makedirs(Log.config_directory)
+                    print_stream_handler = logging.StreamHandler()
+                    print_stream_handler.setFormatter(logging.Formatter('[%(asctime)s]%(message)s'))
+                    Log.print_logger.addHandler(print_stream_handler)
 
-            if os.path.exists(Log.name_config_path):
-                Log.name_config_dictlist.import_json(Log.name_config_path)
+                if Log.store_enabled:
+                    if not os.path.exists(Log.log_directory):
+                        os.makedirs(Log.log_directory)
 
-            if not os.path.exists(Log.level_config_path):
-                Log.level_config_dictlist.extend_data([
-                    {'level': 'critical', 'value': 100},
-                    {'level': 'info', 'value': 50},
-                    {'level': 'debug', 'value': 30},
-                    {'level': 'none', 'value': 0},
-                ])
-                Log.level_config_dictlist.export_json(Log.level_config_path)
-            else:
-                Log.level_config_dictlist.import_json(Log.level_config_path)
+                    if Log.over_time_log_clear_enabled:
+                        for directory_item in os.listdir(Log.log_directory):
+                            if os.path.isdir(os.path.join(Log.log_directory, directory_item)) \
+                                and (Log.days_over_time <= (datetime.datetime.now() - datetime.datetime.strptime(directory, '%Y-%m-%d')).days):
+                                    shutil.rmtree(os.path.join(Log.log_directory, directory))
 
-            # loggers
-            if Log.print_enabled:
-                Log.print_logger = logging.getLogger('print')
-                Log.print_logger.setLevel(logging.INFO)
+                    Log.log_store_directory = os.path.join(Log.log_directory, datetime.datetime.now().strftime('%Y-%m-%d'))
+                    if not os.path.exists(Log.log_store_directory):
+                        os.makedirs(Log.log_store_directory)
 
-                print_stream_handler = logging.StreamHandler()
-                print_stream_handler.setFormatter(logging.Formatter('[%(asctime)s]%(message)s'))
-                Log.print_logger.addHandler(print_stream_handler)
+                    Log.store_logger = logging.getLogger('store')
+                    Log.store_logger.setLevel(logging.INFO)
 
-            if Log.store_enabled:
-                if not os.path.exists(Log.log_directory):
-                    os.makedirs(Log.log_directory)
+                    file_handler = logging.FileHandler(
+                        os.path.join(Log.log_store_directory, datetime.datetime.now().strftime('%H-%M-%S.log')))
+                    file_handler.setFormatter(logging.Formatter('[%(asctime)s]%(message)s'))
+                    Log.store_logger.addHandler(file_handler)
 
-                if Log.over_time_log_clear_enabled:
-                    for (path, directories, files) in os.walk(Log.log_directory):
-                        for directory in directories:
-                            if Log.days_over_time <= \
-                               (datetime.datetime.now() - datetime.datetime.strptime(directory, '%Y-%m-%d')).days:
-                                shutil.rmtree(os.path.join(Log.log_directory, directory))
+                Log.is_started = True
 
-                        break
+            self.level_config = Log.name_config_dictlist.get(name)
+            if not self.level_config:
+                self.name_config = {'name': name, 'print': 'info', 'store': 'debug'}
 
-                Log.log_store_directory = os.path.join(Log.log_directory, datetime.datetime.now().strftime('%Y-%m-%d'))
-                if not os.path.exists(Log.log_store_directory):
-                    os.makedirs(Log.log_store_directory)
-
-                Log.store_logger = logging.getLogger('store')
-                Log.store_logger.setLevel(logging.INFO)
-
-                file_handler = logging.FileHandler(
-                    os.path.join(Log.log_store_directory, datetime.datetime.now().strftime('%H-%M-%S.log')))
-                file_handler.setFormatter(logging.Formatter('[%(asctime)s]%(message)s'))
-                Log.store_logger.addHandler(file_handler)
-
-            Log.is_started = True
-
-    @staticmethod
-    def get_level_config(name):
-        name_config = Log.name_config_dictlist.get_datum(name)
-
-        if name_config is None:
-            Log.name_config_dictlist.append({'name': name, 'print': 'info', 'store': 'debug'})
-            name_config = Log.name_config_dictlist.get_datum(name)
-            Log.name_config_dictlist.export_json(Log.name_config_path)
-
-        return name_config
+                Log.name_config_dictlist.append(self.name_config)
+                Log.name_config_dictlist.export_json(Log.name_config_path)
+        except Exception as error:
+            print(f'error: {error} / Log(name:{name}/{type(name)})')
 
     @staticmethod
     def get_level_value(level):
-        level_config = Log.level_config_dictlist.get_datum(level)
+        try:
+            level_config = Log.level_config_dictlist.get(level)
 
-        if level_config is None:
-            Log.level_config_dictlist.append({'level': level, 'value': 50})
-            level_config = Log.level_config_dictlist.get_datum(level)
-            Log.level_config_dictlist.export_json(Log.level_config_path)
+            if not level_config:
+                level_config = {'level': level, 'value': 50}
 
-        return level_config['value']
+                Log.level_config_dictlist.append(level_config)
+                Log.level_config_dictlist.export_json(Log.level_config_path)
+
+            return level_config['value']
+        except Exception as error:
+            print(f'error: {error} / Log.get_level_value(level:{level}/{type(level)})')
+            return 50
+
+    def print(self, level, message):
+        try:
+            log = f'[{self.name}][{level}] {meesage}'
+            level_value = Log.get_level_value(level)
+
+            if Log.print_logger and level_value >= Log.get_level_value(self.level_config['print']):
+                Log.print_logger.info(log)
+
+            if Log.store_logger and level_value >= Log.get_level_value(self.level_config['store']):
+                Log.store_logger.info(log)
+        except Exception as error:
+            print(f'error: {error} / log.print(level:{level}/{type(level)})')

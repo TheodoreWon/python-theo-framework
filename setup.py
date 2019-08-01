@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='theo-framework',
-    version='1.2.1',
+    version='2.0.0',
     install_requires=['theo-database'],
     url='https://github.com/TheodoreWon/python-theo-framework',
     license='MIT',

@@ -14,8 +14,8 @@ class System:
         please use System with Component.
 
     Methods:
-        register_interface(component, interface, argument_numbers, func) : registering interface
-        execute_interface(component, interface, *arguments) : executing interface
+        register_interface(component, command, argument_numbers, func) : registering interface
+        execute_interface(component, command, *arguments) : executing interface
 
         register_component(constructor)
         register_components(constructors)
@@ -49,92 +49,89 @@ class System:
     is_prompt_started = False
 
     @staticmethod
-    def register_interface(component, interface, argument_numbers, func):
-        if System.interface_dictlist.get_datum(
-                [{'key': 'component', 'value': component}, {'key': 'interface', 'value': interface}]) is None:
-            System.interface_dictlist.append(
-                {'component': component, 'interface': interface, 'argument_numbers': argument_numbers, 'func': func})
-        else:
-            print('[theo.framework.System] warning: interface(component:{}/interface:{}) is already registered.'.format(
-                component, interface))
+    def register_interface(component, command, argument_numbers, func):
+        try:
+            if not System.interface_dictlist.get([{'key': 'component', 'value': component}, {'key': 'command', 'value': command}]):
+                System.interface_dictlist.append({'component': component, 'command': command, 'argument_numbers': argument_numbers, 'func': func})
+        except Exception as error:
+            print(f'error: {error} / System.register_interface(component:{component}/{type(component)}, command:{command}/{type(command)}')
+            print(f'                                         , argument_numbers:{argument_numbers}/{type(argument_numbers)}, func:{func}/{type(func)})')
 
     @staticmethod
-    def execute_interface(component, interface, *arguments):
-        interface = System.interface_dictlist.get_datum(
-            [{'key': 'component', 'value': component}, {'key': 'interface', 'value': interface}])
+    def execute_interface(component, command, *arguments):
+        try:
+            interface = System.interface_dictlist.get([{'key': 'component', 'value': component}, {'key': 'command', 'value': command}])
+            if interface and len(arguments) in interface['argument_numbers']:
+                return interface['func'](*arguments)
 
-        if interface is not None and len(arguments) in interface['argument_numbers']:
-            return interface['func'](*arguments)
-
-        print('[theo.framework.System] warning: interface(component:{}/interface:{}) is not exist.'.format(
-            component, interface))
-        return None
+            return None
+        except Exception as error:
+            print(f'error: {error} / System.execute_interface(component:{component}/{type(component)}, command:{command}/{type(command)}')
+            print(f'                                         , *arguments:{arguments}/{type(arguments)})')
+            return None
 
     @staticmethod
     def register_component(constructor):
-        if System.component_dictlist.get_datum('constructor', constructor) is None:
-            System.component_dictlist.append({'constructor': constructor, 'handler': None, 'init': False})
-        else:
-            print('[theo.framework.System] warning: component({}) is already registered.'.format(
-                constructor.__name__))
+        try:
+            if not System.component_dictlist.get('constructor', constructor):
+                System.component_dictlist.append({'constructor': constructor, 'handler': None, 'init': False})
+        except Exception as error:
+            print(f'error: {error} / System.register_component(constructor:{constructor}/{type(constructor)})')
 
     @staticmethod
     def register_components(constructors):
-        for constructor in constructors:
-            if System.component_dictlist.get_datum('constructor', constructor) is None:
-                System.component_dictlist.append({'constructor': constructor, 'handler': None, 'init': False})
-            else:
-                print('[theo.framework.System] warning: component({}) is already registered.'.format(
-                    constructor.__name__))
+        try:
+            for constructor in constructors:
+                if not System.component_dictlist.get('constructor', constructor):
+                    System.component_dictlist.append({'constructor': constructor, 'handler': None, 'init': False})
+        except Exception as error:
+            print(f'error: {error} / System.register_components(constructor:{constructors}/{type(constructors)})')
 
     @staticmethod
     def get_components():
-        components = list()
-        for component in System.component_dictlist.get_data():
-            components.append(component['constructor'].__name__)
-
-        return components
+        try:
+            return list(map(lambda component: component['constructor'].__name__, System.component_dictlist.get_list()))
+        except Exception as error:
+            print(f'error: {error} / System.get_components()')
 
     @staticmethod
     def startup_components():
-        for component in System.component_dictlist.get_data():
-            if component['handler'] is None:
-                component['handler'] = component['constructor']()
+        try:
+            for component in System.component_dictlist.get_list():
+                if not component['handler']:
+                    component['handler'] = component['constructor']()
 
-            if not component['init']:
-                component['handler'].initial()
-                component['init'] = True
+                if not component['init']:
+                    component['handler'].initial()
+                    component['init'] = True
+        except Exception as error:
+            print(f'error: {error} / System.get_components()')
 
     @staticmethod
     def start_interface_prompt():
-        if not System.is_prompt_started:
-            system_queue = queue.Queue()
-            prompt_queue = queue.Queue()
+        try:
+            if not System.is_prompt_started:
+                system_queue = queue.Queue()
+                prompt_queue = queue.Queue()
 
-            prompt = Prompt()
-            prompt.set_queue(system_queue, prompt_queue)
-            threading.Thread(target=prompt.cmdloop).start()
+                prompt = Prompt()
+                prompt.set_queue(system_queue, prompt_queue)
+                threading.Thread(target=prompt.cmdloop).start()
 
-            System.is_prompt_started = True
+                System.is_prompt_started = True
 
-            while True:
-                messages = system_queue.get()
-                if len(messages) == 1 and messages[0] == 'exit':
-                    # print('[System] exit')
-                    break
-
-                elif len(messages) == 1 and messages[0] == 'get_interfaces':
-                    prompt_queue.put(System.interface_dictlist.get_data())
-
-                elif len(messages) >= 2:
-                    print('[theo.framework.System] execute interface({})'.format(messages))
-                    prompt_queue.put(System.execute_interface(messages[0], messages[1], *messages[2:]))
-
-                else:
-                    # print('[System] invalid command({})'.format(messages))
-                    prompt_queue.put(None)
-        else:
-            print('[theo.framework.System] warning: prompt is already started.')
+                while True:
+                    messages = system_queue.get()
+                    if len(messages) == 1 and messages[0] == 'exit':
+                        break
+                    elif len(messages) == 1 and messages[0] == 'get_interfaces':
+                        prompt_queue.put(System.interface_dictlist.get_list())
+                    elif len(messages) >= 2:
+                        prompt_queue.put(System.execute_interface(messages[0], messages[1], *messages[2:]))
+                    else:
+                        prompt_queue.put(None)
+        except Exception as error:
+            print(f'error: {error} / System.start_interface_prompt()')
 
 
 class Prompt(cmd.Cmd):
@@ -150,50 +147,41 @@ class Prompt(cmd.Cmd):
         self.prompt_queue = prompt_queue
 
     def precmd(self, inputs):
-        if self.system_queue is None:
-            raise AssertionError('[theo.framework.Prompt] error: system_queue is not set.')
+        try:
+            inputs = inputs.split()
+            if len(inputs) < 1:
+                return ''
+            elif len(inputs) == 1 and inputs[0] == 'exit':
+                return 'exit'
+            elif len(inputs) == 1 and inputs[0] == 'help':
+                self.system_queue.put(['get_interfaces'])
 
-        if self.prompt_queue is None:
-            raise AssertionError('[theo.framework.Prompt] error: prompt_queue is not set.')
+                interfaces = self.prompt_queue.get()
+                print(f'Interface list(num:{len(interfaces)})')
+                for interface in interfaces:
+                    print('- {} {} {}'.format(interface['component'], interface['interface'], interface['argument_numbers']))
 
-        inputs = inputs.split()
-        if len(inputs) < 1:
+                return ''
+            elif len(inputs) < 2:
+                print('Invalid command')
+                return ''
+
+            self.system_queue.put(inputs)
+            result = self.prompt_queue.get()
+
+            if isinstance(result, DictList):
+                print('Result : below dictlist')
+                result.print()
+            elif isinstance(result, list):
+                print(f'Result : list(num:{len(result)})')
+                for index, datum in enumerate(result):
+                    print('{} {}'.format(index, datum))
+            else:
+                print(f'[Prompt] Result : {result}/{type(result)}')
+
             return ''
-
-        elif len(inputs) == 1 and inputs[0] == 'exit':
-            return 'exit'
-
-        elif len(inputs) == 1 and inputs[0] == 'help':
-            self.system_queue.put(['get_interfaces'])
-
-            interfaces = self.prompt_queue.get()
-            print('interface list(num:{})'.format(len(interfaces)))
-            for interface in interfaces:
-                print('- {} {} {}'.format(
-                    interface['component'], interface['interface'], interface['argument_numbers']))
-
-            return ''
-
-        elif len(inputs) < 2:
-            print('[Prompt] Invalid command')
-            return ''
-
-        self.system_queue.put(inputs)
-        result = self.prompt_queue.get()
-
-        if isinstance(result, DictList):
-            print('[Prompt] Result : below dictlist')
-            result.print()
-
-        elif isinstance(result, list):
-            print('[Prompt] Result : list(num:{})'.format(len(result)))
-            for index, datum in enumerate(result):
-                print('{} {}'.format(index, datum))
-
-        else:
-            print('[Prompt] Result : {}'.format(result))
-
-        return ''
+        except Exception as error:
+            print(f'error: {error} / Prompt.precmd(component:{inputs}/{type(inputs)})')
 
     def do_exit(self, inputs):
         self.system_queue.put(['exit'])
