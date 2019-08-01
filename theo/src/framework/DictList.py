@@ -33,11 +33,11 @@ class DictList:
         list = dictlist.get_list(key, value) : getting the list what is matched with argument key and argument value
         list = dictlist.get_list(queries)    : getting the list what is matched with argument queries
 
-        list = values(key)
+        list = values(key, overlap=False, sort=False)
 
-        dictlist.append(element) : appending argument element
-        dictlist.insert(element) : inserting argument element at the first of the stored list
-        dictlist.extend(dictlist) : extending the list from argument dictlist
+        dictlist.append(element)   : appending argument element
+        dictlist.insert(element)   : inserting argument element at the first of the stored list
+        dictlist.extend(dictlist)  : extending the list from argument dictlist
         dictlist.extend_list(list) : extending the list
 
         dictlist.remove(element) : removing argument element if the element is exist in the stored list
@@ -50,7 +50,7 @@ class DictList:
         dictlist.export_csv(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
             file (str): the file path (ex. os.path.join(os.getcwd(), 'files', 'data.json'))
 
-        dictlist.import_mongodb(database, collection, range=None) : importing the data from mongodb
+        dictlist.import_mongodb(database, collection, range_filter=None) : importing the data from mongodb
         dictlist.export_mongodb(database, collection) : exporting the datawhat is stored list to mongodb
 
         walker_handler = dictlist.plug_in_walker(walker, walker_delay=False, insert=False)
@@ -66,7 +66,7 @@ class DictList:
         print(theo_contract) : {'name': 'theo', 'email': 'taehee.won@gmail.com'}
     """
 
-    def __init__(self, key=None, initial_data=None):
+    def __init__(self, key=None):
         self.data = list()
 
         self.key = key if key is not None and isinstance(key, str) else None
@@ -108,7 +108,7 @@ class DictList:
 
     def get(self, attr1, attr2=None):
         try:
-            if self.key is not None and not self.sorted:
+            if self.key and not self.sorted:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
@@ -118,7 +118,7 @@ class DictList:
             return None
 
         # element = get(queries) : getting the element what is matched with argument queries
-        if attr2 is None and isinstance(attr1, list):
+        if not attr2 and isinstance(attr1, list):
             try:
                 if not len(attr1):
                     raise
@@ -137,7 +137,7 @@ class DictList:
                 return None
 
         # element = dictlist.get(value) : getting the element what is matched with the stored key and argument value
-        elif attr2 is None:
+        elif not attr2:
             try:
                 left_index, right_index = 0, len(self.data) - 1
                 while left_index <= right_index:
@@ -154,7 +154,8 @@ class DictList:
             except Exception as error:
                 print(f'error: {error} / dictlist.get(value:{attr1}/{type(attr1)})')
                 print('        element = dictlist.get(value) : getting the element what is matched with the stored key and argument value')
-                print('        if you set the key, the key could be cleared by activation of walker')
+                if len(self.walkers):
+                    print('        if you set the key, the key could be cleared by activation of walker')
                 return None
 
         # element = dictlist.get(key, value) : getting the element what is matched with argument key and argument value
@@ -172,7 +173,7 @@ class DictList:
 
     def get_list(self, attr1=None, attr2=None):
         try:
-            if self.key is not None and not self.sorted:
+            if self.key and not self.sorted:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
@@ -186,7 +187,7 @@ class DictList:
             return self.data
 
         # list = dictlist.get_list(queries) : getting the list what is matched with argument queries
-        if attr2 is None and isinstance(attr1, list):
+        if not attr2 and isinstance(attr1, list):
             try:
                 if not len(attr1):
                     raise
@@ -206,7 +207,7 @@ class DictList:
                 return None
 
         # list = dictlist.get_list(value) : getting the list what is matched with the stored key and argument value
-        elif attr2 is None:
+        elif not attr2:
             try:
                 return list(filter(lambda element: element[self.key] == attr1, self.data))
             except Exception as error:
@@ -223,9 +224,9 @@ class DictList:
                 print('        list = dictlist.get_list(key, value) : getting the list what is matched with argument key and argument value')
                 return None
 
-    def values(self, key):
+    def values(self, key, overlap=False, sort=False):
         try:
-            if self.key is not None and not self.sorted:
+            if self.key and not self.sorted:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
@@ -235,11 +236,12 @@ class DictList:
             return None
 
         try:
-            return list(map(lambda element: element[key], filter(lambda element: key in element, self.data)))
-            #return list(element[key] for element in filter(lambda element: key in element, self.data))
-            #return list(element[key] for element in self.data if key in element)
+            values = list(map(lambda element: element[key], filter(lambda element: key in element, self.data)))
+            if not overlap: values = list(set(values))
+            if sort:        values.sort()
+            return values
         except Exception as error:
-            print(f'error: {error} / dictlist.values(key:{key}/{type(key)})')
+            print(f'error: {error} / dictlist.values(key:{key}/{type(key)}, overlap:{overlap}/{type(overlap)}, sort:{sort}/{type(sort)})')
             return None
 
     def append(self, element):
@@ -318,7 +320,7 @@ class DictList:
 
     def export_json(self, file, encoding='UTF-8-sig'):
         try:
-            if self.key is not None and not self.sorted:
+            if self.key and not self.sorted:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
@@ -367,7 +369,7 @@ class DictList:
 
     def export_csv(self, file, encoding='UTF-8-sig'):
         try:
-            if self.key is not None and not self.sorted:
+            if self.key and not self.sorted:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
@@ -392,16 +394,16 @@ class DictList:
         except Exception as error:
             print(f'error: {error} / dictlist.export_csv(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
 
-    def import_mongodb(self, database, collection, range=None):
+    def import_mongodb(self, database, collection, range_filter=None):
         try:
             from theo.src.framework.System import System
             from theo.database import MongoDB
 
             if 'MongoDBCtrl' in System.get_components():
-                data = System.execute_interface('MongoDBCtrl', 'load_data', database, collection, self.key, None, range)
+                data = System.execute_interface('MongoDBCtrl', 'select', database, collection, self.key, None, range_filter)
             else:
                 mongodb = MongoDB()
-                data = mongodb.load_data(database, collection, sorting_key=self.key, range=range)
+                data = mongodb.select(database, collection, sorting_key=self.key, range=range_filter)
                 del mongodb
 
             if len(data):
@@ -409,11 +411,11 @@ class DictList:
                 self.sorted = False
                 self.run_walker()
         except Exception as error:
-            print(f'error: {error} / dictlist.import_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)})')
+            print(f'error: {error} / dictlist.import_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)}, range:{range}/{type(range)})')
 
     def export_mongodb(self, database, collection):
         try:
-            if self.key is not None and not self.sorted:
+            if self.key and not self.sorted:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
@@ -428,17 +430,17 @@ class DictList:
                 from theo.database import MongoDB
 
                 if 'MongoDBCtrl' in System.get_components():
-                    System.execute_interface('MongoDBCtrl', 'save_data', database, collection, self.data, self.key)
+                    System.execute_interface('MongoDBCtrl', 'insert', database, collection, self.data, self.key)
                 else:
                     mongodb = MongoDB()
-                    mongodb.save_data(database, collection, self.data, unique_key=self.key)
+                    mongodb.insert(database, collection, self.data, unique_key=self.key)
                     del mongodb
         except Exception as error:
             print(f'error: {error} / dictlist.export_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)})')
 
     def plug_in_walker(self, walker, walker_delay=False, insert=False):
         try:
-            if self.key is not None and not self.sorted:
+            if self.key and not self.sorted:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
@@ -457,13 +459,18 @@ class DictList:
             if not walker_delay:
                 self.run_walker()
 
+            self.key = None
+
             return handler
         except Exception as error:
             print(f'error: {error} / dictlist.plug_in_walker(walker:{walker}/{type(walker)}, walker_delay:{walker_delay}/{type(walker_delay)}, insert:{insert}/{type(insert)})')
             return None
 
     def plug_out_walker(self, handler):
-        self.walkers.remove(handler)
+        try:
+            self.walkers.remove(handler)
+        except Exception as error:
+            print(f'error: {error} / dictlist.plug_out_walker(handler:{handler}/{type(handler)})')
 
     def run_walker(self):
         try:
