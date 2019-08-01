@@ -159,7 +159,7 @@ class Prompt(cmd.Cmd):
                 interfaces = self.prompt_queue.get()
                 print(f'Interface list(num:{len(interfaces)})')
                 for interface in interfaces:
-                    print('- {} {} {}'.format(interface['component'], interface['interface'], interface['argument_numbers']))
+                    print('- {} {} {}'.format(interface['component'], interface['command'], interface['argument_numbers']))
 
                 return ''
             elif len(inputs) < 2:
@@ -181,7 +181,7 @@ class Prompt(cmd.Cmd):
 
             return ''
         except Exception as error:
-            print(f'error: {error} / Prompt.precmd(component:{inputs}/{type(inputs)})')
+            print(f'error: {error} / Prompt.precmd(inputs:{inputs}/{type(inputs)})')
 
     def do_exit(self, inputs):
         self.system_queue.put(['exit'])
