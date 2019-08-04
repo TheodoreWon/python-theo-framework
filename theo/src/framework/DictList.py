@@ -347,8 +347,8 @@ class DictList:
     def import_csv(self, file, encoding='UTF-8-sig', separator=','):
         try:
             if os.path.exists(file):
-                file_handler = open(file, 'r', encoding=encoding, delimiter=separator)
-                csv_reader = csv.reader(file_handler)
+                file_handler = open(file, 'r', encoding=encoding)
+                csv_reader = csv.reader(file_handler, delimiter=separator)
                 data = list()
                 for index, values in enumerate(csv_reader):
                     if index == 0:
