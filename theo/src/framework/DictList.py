@@ -1,4 +1,3 @@
-import collections
 import os
 import json
 import csv
@@ -46,7 +45,7 @@ class DictList:
 
         dictlist.import_json(file, encoding='UTF-8-sig') : importing the json data from json file
         dictlist.export_json(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
-        dictlist.import_csv(file, encoding='UTF-8-sig') : importing the json data from json file
+        dictlist.import_csv(file, encoding='UTF-8-sig', separator=',') : importing the json data from json file
         dictlist.export_csv(file, encoding='UTF-8-sig') : exporting the data what is stored list to csv file
             file (str): the file path (ex. os.path.join(os.getcwd(), 'files', 'data.json'))
 
@@ -85,8 +84,8 @@ class DictList:
                 self.sorted = True
         except Exception as error:
             print(f'error: {error} / dictlist.print(print_all:{print_all}/{type(print_all)})')
-            print(f'       no value for the key({self.key}) at '
-                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            print(f'\tno value for the key({self.key}) at',
+                  f'{list(filter(lambda element: self.key not in element, self.data))}')
             return
 
         try:
@@ -113,8 +112,8 @@ class DictList:
                 self.sorted = True
         except Exception as error:
             print(f'error: {error} / dictlist.get(attr1:{attr1}/{type(attr1)}, attr2:{attr2}/{type(attr2)})')
-            print(f'       no value for the key({self.key}) at '
-                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            print(f'\tno value for the key({self.key}) at',
+                  f'{list(filter(lambda element: self.key not in element, self.data))}')
             return None
 
         # element = get(queries) : getting the element what is matched with argument queries
@@ -133,7 +132,7 @@ class DictList:
                 return None
             except Exception as error:
                 print(f'error: {error} / dictlist.get(queries:{attr1}/{type(attr1)})')
-                print('        element = dictlist.get(queries) : getting the element what is matched with argument queries')
+                print('\telement = dictlist.get(queries) : getting the element what is matched with argument queries')
                 return None
 
         # element = dictlist.get(value) : getting the element what is matched with the stored key and argument value
@@ -153,9 +152,9 @@ class DictList:
                 return None
             except Exception as error:
                 print(f'error: {error} / dictlist.get(value:{attr1}/{type(attr1)})')
-                print('        element = dictlist.get(value) : getting the element what is matched with the stored key and argument value')
+                print('\telement = dictlist.get(value) : getting the element what is matched with the stored key and argument value')
                 if len(self.walkers):
-                    print('        if you set the key, the key could be cleared by activation of walker')
+                    print('\tif you set the key, the key could be cleared by activation of walker')
                 return None
 
         # element = dictlist.get(key, value) : getting the element what is matched with argument key and argument value
@@ -168,7 +167,7 @@ class DictList:
                 return None
             except Exception as error:
                 print(f'error: {error} / dictlist.get(key:{attr1}/{type(attr1)}, value:{attr2}/{type(attr2)})')
-                print('        element = dictlist.get(key, value) : getting the element what is matched with argument key and argument value')
+                print('\telement = dictlist.get(key, value) : getting the element what is matched with argument key and argument value')
                 return None
 
     def get_list(self, attr1=None, attr2=None):
@@ -178,8 +177,8 @@ class DictList:
                 self.sorted = True
         except Exception as error:
             print(f'error: {error} / dictlist.get_list(attr1:{attr1}/{type(attr1)}, attr2:{attr2}/{type(attr2)})')
-            print(f'       no value for the key({self.key}) at '
-                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            print(f'\tno value for the key({self.key}) at',
+                  f'{list(filter(lambda element: self.key not in element, self.data))}')
             return None
 
         # list = dictlist.get_list() : getting the list what is stored
@@ -203,7 +202,7 @@ class DictList:
                 return data
             except Exception as error:
                 print(f'error: {error} / dictlist.get_list(queries:{attr1}/{type(attr1)})')
-                print('        list = dictlist.get_list(queries) : getting the list what is matched with argument queries')
+                print('\tlist = dictlist.get_list(queries) : getting the list what is matched with argument queries')
                 return None
 
         # list = dictlist.get_list(value) : getting the list what is matched with the stored key and argument value
@@ -212,7 +211,8 @@ class DictList:
                 return list(filter(lambda element: element[self.key] == attr1, self.data))
             except Exception as error:
                 print(f'error: {error} / dictlist.get_list(value:{attr1}/{type(attr1)})')
-                print('        list = dictlist.get_list(value) : getting the list what is matched with the stored key and argument value')
+                print('\tlist = dictlist.get_list(value) :',
+                      'getting the list what is matched with the stored key and argument value')
                 return None
 
         # list = dictlist.get_list(key, value) : getting the list what is matched with argument key and argument value
@@ -221,7 +221,8 @@ class DictList:
                 return list(filter(lambda element: element[attr1] == attr2, self.data))
             except Exception as error:
                 print(f'error: {error} / dictlist.get_list(key:{attr1}/{type(attr1)}, value:{attr2}/{type(attr2)})')
-                print('        list = dictlist.get_list(key, value) : getting the list what is matched with argument key and argument value')
+                print('\tlist = dictlist.get_list(key, value) :',
+                      'getting the list what is matched with argument key and argument value')
                 return None
 
     def values(self, key, overlap=False, sort=False):
@@ -231,8 +232,8 @@ class DictList:
                 self.sorted = True
         except Exception as error:
             print(f'error: {error} / dictlist.values(key:{key}/{type(key)})')
-            print(f'       no value for the key({self.key}) at '
-                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            print(f'\tno value for the key({self.key}) at',
+                  f'{list(filter(lambda element: self.key not in element, self.data))}')
             return None
 
         try:
@@ -241,7 +242,8 @@ class DictList:
             if sort:        values.sort()
             return values
         except Exception as error:
-            print(f'error: {error} / dictlist.values(key:{key}/{type(key)}, overlap:{overlap}/{type(overlap)}, sort:{sort}/{type(sort)})')
+            print(f'error: {error} / dictlist.values(key:{key}/{type(key)},',
+                  f'overlap:{overlap}/{type(overlap)}, sort:{sort}/{type(sort)})')
             return None
 
     def append(self, element):
@@ -316,7 +318,8 @@ class DictList:
 
                     self.run_walker()
         except Exception as error:
-            print(f'error: {error} / dictlist.import_json(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
+            print(f'error: {error} / dictlist.import_json(file:{file}/{type(file)},',
+                  f'encoding:{encoding}/{type(encoding)})')
 
     def export_json(self, file, encoding='UTF-8-sig'):
         try:
@@ -325,8 +328,8 @@ class DictList:
                 self.sorted = True
         except Exception as error:
             print(f'error: {error} / dictlist.import_json(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
-            print(f'       no value for the key({self.key}) at '
-                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            print(f'\tno value for the key({self.key}) at',
+                  f'{list(filter(lambda element: self.key not in element, self.data))}')
             return None
 
         try:
@@ -338,12 +341,13 @@ class DictList:
                 json.dump(self.data, file_handler, ensure_ascii=False, indent="\t")
                 file_handler.close()
         except Exception as error:
-            print(f'error: {error} / dictlist.import_json(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
+            print(f'error: {error} / dictlist.import_json(file:{file}/{type(file)},',
+                  'encoding:{encoding}/{type(encoding)})')
 
-    def import_csv(self, file, encoding='UTF-8-sig'):
+    def import_csv(self, file, encoding='UTF-8-sig', separator=','):
         try:
             if os.path.exists(file):
-                file_handler = open(file, 'r', encoding=encoding)
+                file_handler = open(file, 'r', encoding=encoding, delimiter=separator)
                 csv_reader = csv.reader(file_handler)
                 data = list()
                 for index, values in enumerate(csv_reader):
@@ -365,7 +369,8 @@ class DictList:
 
                     self.run_walker()
         except Exception as error:
-            print(f'error: {error} / dictlist.import_csv(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
+            print(f'error: {error} / dictlist.import_csv(file:{file}/{type(file)},',
+                  f'encoding:{encoding}/{type(encoding)})')
 
     def export_csv(self, file, encoding='UTF-8-sig'):
         try:
@@ -374,8 +379,8 @@ class DictList:
                 self.sorted = True
         except Exception as error:
             print(f'error: {error} / dictlist.export_csv(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
-            print(f'       no value for the key({self.key}) at '
-                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            print(f'\tno value for the key({self.key}) at'
+                  f'{list(filter(lambda element: self.key not in element, self.data))}')
             return None
 
         try:
@@ -392,7 +397,8 @@ class DictList:
 
                 file_handler.close()
         except Exception as error:
-            print(f'error: {error} / dictlist.export_csv(file:{file}/{type(file)}, encoding:{encoding}/{type(encoding)})')
+            print(f'error: {error} / dictlist.export_csv(file:{file}/{type(file)},',
+                  f'encoding:{encoding}/{type(encoding)})')
 
     def import_mongodb(self, database, collection, range_filter=None):
         try:
@@ -400,7 +406,8 @@ class DictList:
             from theo.database import MongoDB
 
             if 'MongoDBCtrl' in System.get_components():
-                data = System.execute_interface('MongoDBCtrl', 'select', database, collection, self.key, None, range_filter)
+                data = System.execute_interface(
+                    'MongoDBCtrl', 'select', database, collection, self.key, None, range_filter)
             else:
                 mongodb = MongoDB()
                 data = mongodb.select(database, collection, sorting_key=self.key, range=range_filter)
@@ -411,7 +418,8 @@ class DictList:
                 self.sorted = False
                 self.run_walker()
         except Exception as error:
-            print(f'error: {error} / dictlist.import_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)}, range:{range}/{type(range)})')
+            print(f'error: {error} / dictlist.import_mongodb(database:{database}/{type(database)},',
+                  f'collection:{collection}/{type(collection)}, range:{range}/{type(range)})')
 
     def export_mongodb(self, database, collection):
         try:
@@ -419,9 +427,10 @@ class DictList:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
-            print(f'error: {error} / dictlist.export_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)})')
-            print(f'       no value for the key({self.key}) at '
-                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            print(f'error: {error} / dictlist.export_mongodb(database:{database}/{type(database)},',
+                  f'collection:{collection}/{type(collection)})')
+            print(f'tno value for the key({self.key}) at',
+                  f'{list(filter(lambda element: self.key not in element, self.data))}')
             return None
 
         try:
@@ -436,7 +445,8 @@ class DictList:
                     mongodb.insert(database, collection, self.data, unique_key=self.key)
                     del mongodb
         except Exception as error:
-            print(f'error: {error} / dictlist.export_mongodb(database:{database}/{type(database)}, collection:{collection}/{type(collection)})')
+            print(f'error: {error} / dictlist.export_mongodb(database:{database}/{type(database)},',
+                  f'collection:{collection}/{type(collection)})')
 
     def plug_in_walker(self, walker, walker_delay=False, insert=False):
         try:
@@ -444,9 +454,10 @@ class DictList:
                 self.data.sort(key=lambda element: element[self.key])
                 self.sorted = True
         except Exception as error:
-            print(f'error: {error} / dictlist.plug_in_walker(walker:{walker}/{type(walker)}, walker_delay:{walker_delay}/{type(walker_delay)}, insert:{insert}/{type(insert)})')
-            print(f'       no value for the key({self.key}) at '
-                  + f'{list(filter(lambda element: self.key not in element, self.data))}')
+            print(f'error: {error} / dictlist.plug_in_walker(walker:{walker}/{type(walker)},',
+                  f'walker_delay:{walker_delay}/{type(walker_delay)}, insert:{insert}/{type(insert)})')
+            print(f'\tno value for the key({self.key}) at',
+                  f'{list(filter(lambda element: self.key not in element, self.data))}')
             return None
 
         try:
@@ -463,7 +474,8 @@ class DictList:
 
             return handler
         except Exception as error:
-            print(f'error: {error} / dictlist.plug_in_walker(walker:{walker}/{type(walker)}, walker_delay:{walker_delay}/{type(walker_delay)}, insert:{insert}/{type(insert)})')
+            print(f'error: {error} / dictlist.plug_in_walker(walker:{walker}/{type(walker)},',
+                  f'walker_delay:{walker_delay}/{type(walker_delay)}, insert:{insert}/{type(insert)})')
             return None
 
     def plug_out_walker(self, handler):

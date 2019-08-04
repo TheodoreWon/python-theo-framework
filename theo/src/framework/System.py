@@ -51,23 +51,31 @@ class System:
     @staticmethod
     def register_interface(component, command, argument_numbers, func):
         try:
-            if not System.interface_dictlist.get([{'key': 'component', 'value': component}, {'key': 'command', 'value': command}]):
-                System.interface_dictlist.append({'component': component, 'command': command, 'argument_numbers': argument_numbers, 'func': func})
+            if not System.interface_dictlist.get([{'key': 'component', 'value': component},
+                                                  {'key': 'command', 'value': command}]):
+                System.interface_dictlist.append(
+                    {'component': component, 'command': command, 'argument_numbers': argument_numbers, 'func': func})
         except Exception as error:
-            print(f'error: {error} / System.register_interface(component:{component}/{type(component)}, command:{command}/{type(command)}')
-            print(f'                                         , argument_numbers:{argument_numbers}/{type(argument_numbers)}, func:{func}/{type(func)})')
+            print(f'error: {error} / System.register_interface(component:{component}/{type(component)},',
+                  f'command:{command}/{type(command)},')
+            print(f'\targument_numbers:{argument_numbers}/{type(argument_numbers)}, func:{func}/{type(func)})')
 
     @staticmethod
     def execute_interface(component, command, *arguments):
         try:
-            interface = System.interface_dictlist.get([{'key': 'component', 'value': component}, {'key': 'command', 'value': command}])
+            interface = System.interface_dictlist.get([
+                {'key': 'component', 'value': component},
+                {'key': 'command', 'value': command}
+            ])
+
             if interface and len(arguments) in interface['argument_numbers']:
                 return interface['func'](*arguments)
 
             return None
         except Exception as error:
-            print(f'error: {error} / System.execute_interface(component:{component}/{type(component)}, command:{command}/{type(command)}')
-            print(f'                                         , *arguments:{arguments}/{type(arguments)})')
+            print(f'error: {error} / System.execute_interface(component:{component}/{type(component)},',
+                  f'command:{command}/{type(command)},')
+            print(f'\t*arguments:{arguments}/{type(arguments)})')
             return None
 
     @staticmethod
@@ -159,7 +167,8 @@ class Prompt(cmd.Cmd):
                 interfaces = self.prompt_queue.get()
                 print(f'Interface list(num:{len(interfaces)})')
                 for interface in interfaces:
-                    print('- {} {} {}'.format(interface['component'], interface['command'], interface['argument_numbers']))
+                    print('- {} {} {}'.format(
+                        interface['component'], interface['command'], interface['argument_numbers']))
 
                 return ''
             elif len(inputs) < 2:
@@ -170,14 +179,14 @@ class Prompt(cmd.Cmd):
             result = self.prompt_queue.get()
 
             if isinstance(result, DictList):
-                print('Result : below dictlist')
+                print('Result : below DictList')
                 result.print()
             elif isinstance(result, list):
-                print(f'Result : list(num:{len(result)})')
-                for index, datum in enumerate(result):
-                    print('{} {}'.format(index, datum))
+                print(f'Result : List(num:{len(result)})')
+                for index, element in enumerate(result):
+                    print(f'[index:{index}] {element}')
             else:
-                print(f'[Prompt] Result : {result}/{type(result)}')
+                print(f'Result : {result}/{type(result)}')
 
             return ''
         except Exception as error:

@@ -71,12 +71,16 @@ class Log:
                 Log.level_config_path = os.path.join(Log.config_directory, 'level_config.json') if config_directory else Log.level_config_path
                 Log.log_directory = log_directory if log_directory else Log.log_directory
 
-                Log.over_time_log_clear_enabled = True if over_time_log_clear_enabled else Log.over_time_log_clear_enabled
+                Log.over_time_log_clear_enabled = \
+                    True if over_time_log_clear_enabled else Log.over_time_log_clear_enabled
                 Log.over_time_days = over_time_days if over_time_days else Log.over_time_days
         except Exception as error:
-            print(f'error: {error} / Log.configure(print_enabled:{print_enabled}/{type(print_enabled)}, store_enabled:{store_enabled}/{type(store_enabled)},')
-            print(f'       config_directory:{config_directory}/{type(config_directory)}, log_directory:{log_directory}/{type(log_directory)}'
-                  + f', over_time_log_clear_enabled:{over_time_log_clear_enabled}/{type(over_time_log_clear_enabled)}, over_time_days:{over_time_days}/{type(over_time_days)}')
+            print(f'error: {error} / Log.configure(print_enabled:{print_enabled}/{type(print_enabled)},',
+                  f'store_enabled:{store_enabled}/{type(store_enabled)},')
+            print(f'\tconfig_directory:{config_directory}/{type(config_directory)},',
+                  f'log_directory:{log_directory}/{type(log_directory)}')
+            print(f'\tover_time_log_clear_enabled:{over_time_log_clear_enabled}/{type(over_time_log_clear_enabled)},',
+                  f'over_time_days:{over_time_days}/{type(over_time_days)}')
 
     def __init__(self, name):
         try:
