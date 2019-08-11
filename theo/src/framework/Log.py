@@ -90,8 +90,8 @@ class Log:
                 print(f'Log Enabled(print:{Log.print_enabled}, store:{Log.store_enabled})')
                 print(f'Log Directories(config:{Log.config_directory}' + (f', log:{Log.log_directory})' if Log.store_enabled else ')'))
                 if Log.store_enabled:
-                    print(f'Log Option(over_time_log_clear_enabled:{Log.over_time_log_clear_enabled},',
-                          f'days:{Log.over_time_days})' if Log.over_time_log_clear_enabled else ')')
+                    print(f'Log Option(over_time_log_clear_enabled:{Log.over_time_log_clear_enabled}'
+                          + f', days:{Log.over_time_days})' if Log.over_time_log_clear_enabled else ')')
 
                 if not os.path.exists(Log.config_directory):
                     os.makedirs(Log.config_directory)
